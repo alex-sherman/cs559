@@ -1,0 +1,100 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <title>Spinner (559 P1) - jsFiddle demo</title>
+    
+  <script src="vector.js"></script>
+  <script src="keyframe.js"></script>
+  
+</head>
+<body>
+  <body>
+    <div id="containerDiv" align="center">
+        <canvas id="canvas"></canvas>
+    </div>
+</body>
+  
+
+
+
+<script type='text/javascript'>//<![CDATA[
+
+var canvas = document.getElementById("canvas");
+canvas.width = 100;
+canvas.height = 100;
+var ctx = canvas.getContext('2d');
+
+Wedge = function (color, rotation, keyframes) {
+    this.color = color;
+    this.rotation = rotation;
+    this.animation = new Animation(["rotation", "radius"]);
+    for (var i = 0; i < keyframes.length; i++) {
+        this.animation.addKeyFrame(keyframes[i][0], keyframes[i].slice(1));
+    };
+    this.draw = function (ctx, dt) {
+        this.animation.update(dt / 1000);
+        animFrame = this.animation.currentState();
+        
+        rotation = animFrame.rotation + this.rotation;
+
+        ctx.beginPath();
+        ctx.strokeStyle = this.color;
+        ctx.lineWidth = 16;
+        ctx.arc(50, 50, animFrame.radius, rotation, rotation + Math.PI / 2);
+        ctx.stroke();
+    }
+}
+
+var anim1 = [
+    [0, 0, 16],
+    [0.5, 0, 24],
+    [2, Math.PI / 2, 24],
+    [2.5, Math.PI / 2, 16],
+    [5, Math.PI / 2, 16],
+    [5.5, Math.PI / 2, 8],
+    [7, 0, 8],
+    [7.5, 0, 16],
+    [10, 0, 16]
+];
+var anim2 = [
+    [0, 0, 16],
+    [0.5, 0, 8],
+    [2, -Math.PI / 2, 8],
+    [2.5, -Math.PI / 2, 16],
+    [5, -Math.PI / 2, 16],
+    [5.5, -Math.PI / 2, 24],
+    [7, 0, 24],
+    [7.5, 0, 16],
+    [10, 0, 16]
+];
+
+w1 = new Wedge("red", 0, anim1);
+w2 = new Wedge("blue", Math.PI / 2, anim2);
+w3 = new Wedge("green", Math.PI, anim1);
+w4 = new Wedge("yellow", 3 * Math.PI / 2, anim2);
+wedges = [w1, w2, w3, w4];
+ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+var prev_timestamp = 0;
+
+function loop(timestamp) {
+    var delta = 0;
+    if (prev_timestamp > 0) delta = timestamp - prev_timestamp;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    wedges.forEach(function (wedge) {
+        wedge.draw(ctx, delta);
+    });
+    prev_timestamp = timestamp;
+    window.requestAnimationFrame(loop);
+}
+loop(0);
+//]]> 
+
+</script>
+
+</body>
+
+</html>
+
