@@ -92,19 +92,8 @@ MatrixCreateProjection = function(fov, aspect, near, far) {
     P.values[3][3] = 0;
     return P;
 }
-MatrixCreateView = function(right, up, forward, position) {
-    V = new Matrix();
-    V.values[0][0] = right.x;
-    V.values[0][1] = right.y;
-    V.values[0][2] = right.z;
-    V.values[1][0] = up.x;
-    V.values[1][1] = up.y;
-    V.values[1][2] = up.z;
-    V.values[2][0] = forward.x;
-    V.values[2][1] = forward.y;
-    V.values[2][2] = forward.z;
-    V.values[3][0] = position.x;
-    V.values[3][1] = position.y;
-    V.values[3][2] = position.z;
+MatrixCreateView = function(yaw, pitch, position) {
+    R = MatrixCreateRotationYPR(yaw, pitch, 0);
+    V = R.mul(MatrixCreateTranslationV(position));
     return V;
 }
