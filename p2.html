@@ -22,7 +22,7 @@
 <script type='text/javascript'>//<![CDATA[
 
 var canvas = document.getElementById("canvas");
-canvas.width = 200;
+canvas.width = 400;
 canvas.height = 200;
 var ctx = canvas.getContext('2d');
 
@@ -43,51 +43,55 @@ leftCalf = new RectBone("leftCalf", leftThigh, "blue", -10, 0,20,25);
 rightCalf = new RectBone("rightCalf", rightThigh, "blue", -10, 0,20,25);
 
 anim = new Animation(chest);
-anim.addKeyFrame(0, "chest", MatrixCreateTranslation(50,100,0));
+anim.addKeyFrame(0, "chest", MatrixCreateTranslation(0,100,0));
 anim.addKeyFrame(0, "head", MatrixCreateTranslation(0,-30,0));
+function insertLegFrames(t) {
+    anim.addKeyFrame(t + 0, "leftThigh", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,-Math.PI/4)));
+    anim.addKeyFrame(t + 0, "rightThigh", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,Math.PI/4)));
+    anim.addKeyFrame(t + 0, "leftCalf", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,0)));
+    anim.addKeyFrame(t + 0, "rightCalf", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,Math.PI/8)));
 
-anim.addKeyFrame(0, "leftThigh", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,-Math.PI/4)));
-anim.addKeyFrame(0, "rightThigh", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,Math.PI/4)));
-anim.addKeyFrame(0, "leftCalf", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,0)));
-anim.addKeyFrame(0, "rightCalf", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,Math.PI/8)));
+    anim.addKeyFrame(t + 1, "leftThigh", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,-Math.PI/8)));
+    anim.addKeyFrame(t + 1, "rightThigh", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,Math.PI/8)));
 
-anim.addKeyFrame(1, "leftThigh", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,-Math.PI/8)));
-anim.addKeyFrame(1, "rightThigh", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,Math.PI/8)));
+    anim.addKeyFrame(t + 2, "leftThigh", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,0)));
+    anim.addKeyFrame(t + 2, "leftCalf", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,0)));
+    anim.addKeyFrame(t + 2, "rightThigh", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,0)));
+    anim.addKeyFrame(t + 2, "rightCalf", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,Math.PI/2)));
 
-anim.addKeyFrame(2, "leftThigh", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,0)));
-anim.addKeyFrame(2, "leftCalf", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,0)));
-anim.addKeyFrame(2, "rightThigh", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,0)));
-anim.addKeyFrame(2, "rightCalf", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,Math.PI/2)));
+    anim.addKeyFrame(t + 3, "leftThigh", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,Math.PI/8)));
+    anim.addKeyFrame(t + 3, "rightThigh", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,-Math.PI/8)));
+    anim.addKeyFrame(t + 3, "rightCalf", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,Math.PI/4)));
 
-anim.addKeyFrame(3, "leftThigh", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,Math.PI/8)));
-anim.addKeyFrame(3, "rightThigh", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,-Math.PI/8)));
-anim.addKeyFrame(3, "rightCalf", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,Math.PI/4)));
+    anim.addKeyFrame(t + 4, "leftThigh", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,Math.PI/4)));
+    anim.addKeyFrame(t + 4, "leftCalf", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0, Math.PI/8)));
+    anim.addKeyFrame(t + 4, "rightThigh", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,-Math.PI/4)));
+    anim.addKeyFrame(t + 4, "rightCalf", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,0)));
 
-anim.addKeyFrame(4, "leftThigh", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,Math.PI/4)));
-anim.addKeyFrame(4, "leftCalf", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0, Math.PI/8)));
-anim.addKeyFrame(4, "rightThigh", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,-Math.PI/4)));
-anim.addKeyFrame(4, "rightCalf", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,0)));
+    anim.addKeyFrame(t + 5, "rightThigh", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,-Math.PI/8)));
+    anim.addKeyFrame(t + 5, "leftThigh", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,Math.PI/8)));
 
-anim.addKeyFrame(5, "rightThigh", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,-Math.PI/8)));
-anim.addKeyFrame(5, "leftThigh", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,Math.PI/8)));
+    anim.addKeyFrame(t + 6, "rightThigh", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,0)));
+    anim.addKeyFrame(t + 6, "rightCalf", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,0)));
+    anim.addKeyFrame(t + 6, "leftThigh", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,0)));
+    anim.addKeyFrame(t + 6, "leftCalf", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,Math.PI/2)));
 
-anim.addKeyFrame(6, "rightThigh", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,0)));
-anim.addKeyFrame(6, "rightCalf", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,0)));
-anim.addKeyFrame(6, "leftThigh", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,0)));
-anim.addKeyFrame(6, "leftCalf", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,Math.PI/2)));
+    anim.addKeyFrame(t + 7, "rightThigh", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,Math.PI/8)));
+    anim.addKeyFrame(t + 7, "leftThigh", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,-Math.PI/8)));
+    anim.addKeyFrame(t + 7, "leftCalf", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,Math.PI/4)));
 
-anim.addKeyFrame(7, "rightThigh", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,Math.PI/8)));
-anim.addKeyFrame(7, "leftThigh", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,-Math.PI/8)));
-anim.addKeyFrame(7, "leftCalf", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,Math.PI/4)));
+    anim.addKeyFrame(t + 8, "rightThigh", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,Math.PI/4)));
+    anim.addKeyFrame(t + 8, "rightCalf", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0, Math.PI/8)));
+    anim.addKeyFrame(t + 8, "leftThigh", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,-Math.PI/4)));
+    anim.addKeyFrame(t + 8, "leftCalf", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,0)));
+}
+insertLegFrames(0);
+insertLegFrames(8);
+insertLegFrames(16);
+insertLegFrames(24);
 
-anim.addKeyFrame(8, "rightThigh", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,Math.PI/4)));
-anim.addKeyFrame(8, "rightCalf", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0, Math.PI/8)));
-anim.addKeyFrame(8, "leftThigh", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,-Math.PI/4)));
-anim.addKeyFrame(8, "leftCalf", MatrixCreateTranslation(0, 20, 0).mul(MatrixCreateRotationYPR(0,0,0)));
 
-
-
-anim.addKeyFrame(8, "chest", MatrixCreateTranslation(150,100,0));
+anim.addKeyFrame(32, "chest", MatrixCreateTranslation(400,100,0));
 
 ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -98,7 +102,7 @@ function loop(timestamp) {
     if (prev_timestamp > 0) delta = timestamp - prev_timestamp;
     ctx.setTransform(1,0,0,1,0,0);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    anim.update(delta / 1000);
+    anim.update(delta / 150);
     for(var key in chest.bones) {
         var bone = chest.bones[key];
         var transform = bone.withParentTransform();
