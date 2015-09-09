@@ -35,25 +35,27 @@ Matrix = function() {
             };
             return output;
         }
-        var vmatrix = [vector.x, vector.y, vector.z, 1];
-        return new Vector(
+        var vmatrix = [vector.x, vector.y, vector.z, vector.w];
+        var output = new Vector(
             rowMul.apply(this, [0, vmatrix]),
             rowMul.apply(this, [1, vmatrix]),
-            rowMul.apply(this, [2, vmatrix]));
+            rowMul.apply(this, [2, vmatrix]),
+            rowMul.apply(this, [3, vmatrix]));
+        return output;
     }
 }
 MatrixCreateRotationYPR = function(yaw, pitch, roll) {
     var RX = new Matrix();
-    RX.values[1][1] = Math.cos(yaw)
-    RX.values[2][2] = Math.cos(yaw)
-    RX.values[2][1] = -Math.sin(yaw)
-    RX.values[1][2] = Math.sin(yaw)
+    RX.values[1][1] = Math.cos(pitch)
+    RX.values[2][2] = Math.cos(pitch)
+    RX.values[2][1] = -Math.sin(pitch)
+    RX.values[1][2] = Math.sin(pitch)
 
     var RY = new Matrix();
-    RY.values[0][0] = Math.cos(pitch)
-    RY.values[2][2] = Math.cos(pitch)
-    RY.values[0][2] = -Math.sin(pitch)
-    RY.values[2][0] = Math.sin(pitch)
+    RY.values[0][0] = Math.cos(yaw)
+    RY.values[2][2] = Math.cos(yaw)
+    RY.values[0][2] = -Math.sin(yaw)
+    RY.values[2][0] = Math.sin(yaw)
 
     var RZ = new Matrix();
     RZ.values[0][0] = Math.cos(roll)
@@ -79,4 +81,30 @@ MatrixCreateScale = function(x, y, z) {
     S.values[1][1] = y;
     S.values[2][2] = z;
     return S;
+}
+MatrixCreateProjection = function(fov, aspect, near, far) {
+    P = new Matrix();
+    P.values[0][0] = 1 / (aspect * Math.tan(fov / 2));
+    P.values[1][1] = 1 / (Math.tan(fov / 2));
+    P.values[2][2] = - (far + near) / (far - near)
+    P.values[3][2] = 2 * far * near / (far - near)
+    P.values[2][3] = -1;
+    P.values[3][3] = 0;
+    return P;
+}
+MatrixCreateView = function(right, up, forward, position) {
+    V = new Matrix();
+    V.values[0][0] = right.x;
+    V.values[0][1] = right.y;
+    V.values[0][2] = right.z;
+    V.values[1][0] = up.x;
+    V.values[1][1] = up.y;
+    V.values[1][2] = up.z;
+    V.values[2][0] = forward.x;
+    V.values[2][1] = forward.y;
+    V.values[2][2] = forward.z;
+    V.values[3][0] = position.x;
+    V.values[3][1] = position.y;
+    V.values[3][2] = position.z;
+    return V;
 }

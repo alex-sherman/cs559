@@ -1,0 +1,81 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>Walker (559 P2)</title>
+
+    <script src="vector.js"></script>
+    <script src="animation.js"></script>
+    <script src="matrix.js"></script>
+    <script src="bone.js"></script>
+  
+</head>
+<body>
+    <div id="containerDiv" align="center">
+        <canvas id="canvas"></canvas>
+    </div>
+  
+
+
+
+<script type='text/javascript'>//<![CDATA[
+
+var canvas = document.getElementById("canvas");
+canvas.width = 400;
+canvas.height = 200;
+var ctx = canvas.getContext('2d');
+
+LineBone = function(name, parent, color, p1, p2) {
+    Bone.apply(this, [name, parent]);
+    this.color = color;
+    this.p1 = p1;
+    this.p2 = p2;
+    this.length = length;
+}
+
+root = new LineBone("root", null, "black", new Vector(0,-10,0), new Vector(0,10,0));
+right = new LineBone("right", root, "red", new Vector(10,-10,0), new Vector(10,10,0));
+left = new LineBone("left", root, "blue", new Vector(-10,-10,0), new Vector(-10,10,0));
+
+ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+var prev_timestamp = 0;
+var projection = MatrixCreateProjection(1/Math.PI/4, .5, 0, 1)
+var theta = 0;
+ctx.setTransform(1, 0, 0, 1, canvas.width / 2, canvas.height / 2);
+function loop(timestamp) {
+    var delta = 0;
+    if (prev_timestamp > 0) delta = timestamp - prev_timestamp;
+    ctx.clearRect(-canvas.width / 2, -canvas.height/2, canvas.width, canvas.height);
+    theta += delta / 1000 * Math.PI / 2;
+    if(theta > Math.PI * 2) theta -= Math.PI * 2;
+    var rotation = MatrixCreateRotationYPR(Math.PI /2 + 2 * theta, 0,0);
+    //var view = MatrixCreateView(rotation.transform(new Vector(1,0,0)), new Vector(0,1,0), rotation.transform(new Vector(0,0,-1)), new Vector(Math.cos(theta) * 200,0,Math.sin(theta) * 200));
+    var view = MatrixCreateView(rotation.transform(new Vector(1,0,0)), new Vector(0,1,0), rotation.transform(new Vector(0,0,-1)), new Vector(0,0,-10));
+    for(var key in root.bones) {
+        var bone = root.bones[key];
+        var world = bone.withParentTransform();
+        var transform = projection.mul(view).mul(world);
+        var p1 = transform.transform(bone.p1);
+        var p2 = transform.transform(bone.p2);
+        if(p1.w <= 0 || p2.w <= 0) continue;
+        p1 = p1.mul(1 / p1.w);
+        p2 = p2.mul(1 / p2.w);
+
+        ctx.beginPath();
+        ctx.strokeStyle = bone.color;
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.stroke();
+    }
+    prev_timestamp = timestamp;
+    window.requestAnimationFrame(loop);
+}
+loop(0);
+//]]> 
+
+</script>
+
+</html>
+

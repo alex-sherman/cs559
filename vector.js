@@ -1,8 +1,9 @@
-Vector = function(x, y, z) {
+Vector = function(x, y, z, w) {
     this.type = "Vector";
     this.x = typeof x == 'undefined' ? 0 : x;
     this.y = typeof y == 'undefined' ? 0 : y;
     this.z = typeof z == 'undefined' ? 0 : z;
+    this.w = typeof w == 'undefined' ? 1 : w;
 
     this.dot = function(other) { 
         return this.x * other.x + this.y * other.y + this.z * other.z;
@@ -24,7 +25,7 @@ Vector = function(x, y, z) {
     };
 
     this.mul = function(value) {
-        return new Vector(this.x * value, this.y * value, this.z * value);
+        return new Vector(this.x * value, this.y * value, this.z * value, this.w * value);
     };
 
     this.div = function(value) { return mul(1.0 / value); };
