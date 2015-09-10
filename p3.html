@@ -69,12 +69,12 @@ root.transform = MatrixCreateRotationYPR(0,0,0);
 right = new BoxBone("right", root, "red", new Vector(9,-10,-1), new Vector(11,10,1));
 left = new BoxBone("left", root, "blue", new Vector(-11,-10,-1), new Vector(-9,10,1));
 
-chest = new BoxBone("chest", null, "red", new Vector(-20,-20,-10), new Vector(20,20,10));
+chest = new BoxBone("chest", null, "red", new Vector(-20,-20,-15), new Vector(20,20,15));
 head = new BoxBone("head", chest, "orange", new Vector(-10,-10,-10), new Vector(10,10,10));
 leftThigh = new BoxBone("leftThigh", chest, "blue", new Vector(-20,-25,-10), new Vector(0,0,10));
-leftCalf = new BoxBone("leftCalf", leftThigh, "blue", new Vector(-20,-30, -10), new Vector(0,-5,10));
+leftCalf = new BoxBone("leftCalf", leftThigh, "blue", new Vector(-20,-30, -10), new Vector(0,0,10));
 rightThigh = new BoxBone("rightThigh", chest, "blue", new Vector(0,-25,-10), new Vector(20,0,10));
-rightCalf = new BoxBone("rightCalf", rightThigh, "blue", new Vector(0,-30, -10), new Vector(20,-5,10));
+rightCalf = new BoxBone("rightCalf", rightThigh, "blue", new Vector(0,-30, -10), new Vector(20,0,10));
 
 anim = new Animation(chest);
 anim.addKeyFrame(0, "chest", MatrixCreateTranslation(0,0,0));
