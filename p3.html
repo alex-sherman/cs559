@@ -71,14 +71,58 @@ left = new BoxBone("left", root, "blue", new Vector(-11,-10,-1), new Vector(-9,1
 
 chest = new BoxBone("chest", null, "red", new Vector(-20,-20,-10), new Vector(20,20,10));
 head = new BoxBone("head", chest, "orange", new Vector(-10,-10,-10), new Vector(10,10,10));
-leftThigh = new BoxBone("leftThigh", chest, "blue", new Vector(-20,-45,-10), new Vector(0,-20,10));
-leftCalf = new BoxBone("leftCalf", leftThigh, "blue", new Vector(-20,-70, -10), new Vector(0,-45,10));
-rightThigh = new BoxBone("rightThigh", chest, "blue", new Vector(0,-45,-10), new Vector(20,-20,10));
-rightCalf = new BoxBone("rightCalf", rightThigh, "blue", new Vector(0,-70, -10), new Vector(20,-45,10));
+leftThigh = new BoxBone("leftThigh", chest, "blue", new Vector(-20,-25,-10), new Vector(0,0,10));
+leftCalf = new BoxBone("leftCalf", leftThigh, "blue", new Vector(-20,-30, -10), new Vector(0,-5,10));
+rightThigh = new BoxBone("rightThigh", chest, "blue", new Vector(0,-25,-10), new Vector(20,0,10));
+rightCalf = new BoxBone("rightCalf", rightThigh, "blue", new Vector(0,-30, -10), new Vector(20,-5,10));
 
 anim = new Animation(chest);
 anim.addKeyFrame(0, "chest", MatrixCreateTranslation(0,0,0));
 anim.addKeyFrame(0, "head", MatrixCreateTranslation(0, 30,0));
+function insertLegFrames(t) {
+    anim.addKeyFrame(t + 0, "leftThigh", MatrixCreateTranslation(0, -20, 0).mul(MatrixCreateRotationYPR(0,-Math.PI/4,0)));
+    anim.addKeyFrame(t + 0, "rightThigh", MatrixCreateTranslation(0, -20, 0).mul(MatrixCreateRotationYPR(0,Math.PI/4,0)));
+    anim.addKeyFrame(t + 0, "leftCalf", MatrixCreateTranslation(0, -20, 0).mul(MatrixCreateRotationYPR(0,0,0)));
+    anim.addKeyFrame(t + 0, "rightCalf", MatrixCreateTranslation(0, -20, 0).mul(MatrixCreateRotationYPR(0,Math.PI/8,0)));
+
+    anim.addKeyFrame(t + 1, "leftThigh", MatrixCreateTranslation(0, -20, 0).mul(MatrixCreateRotationYPR(0,-Math.PI/8,0)));
+    anim.addKeyFrame(t + 1, "rightThigh", MatrixCreateTranslation(0, -20, 0).mul(MatrixCreateRotationYPR(0,Math.PI/8,0)));
+
+    anim.addKeyFrame(t + 2, "leftThigh", MatrixCreateTranslation(0, -20, 0).mul(MatrixCreateRotationYPR(0,0,0)));
+    anim.addKeyFrame(t + 2, "leftCalf", MatrixCreateTranslation(0, -20, 0).mul(MatrixCreateRotationYPR(0,0,0)));
+    anim.addKeyFrame(t + 2, "rightThigh", MatrixCreateTranslation(0, -20, 0).mul(MatrixCreateRotationYPR(0,0,0)));
+    anim.addKeyFrame(t + 2, "rightCalf", MatrixCreateTranslation(0, -20, 0).mul(MatrixCreateRotationYPR(0,Math.PI/2,0)));
+
+    anim.addKeyFrame(t + 3, "leftThigh", MatrixCreateTranslation(0, -20, 0).mul(MatrixCreateRotationYPR(0,Math.PI/8,0)));
+    anim.addKeyFrame(t + 3, "rightThigh", MatrixCreateTranslation(0, -20, 0).mul(MatrixCreateRotationYPR(0,-Math.PI/8,0)));
+    anim.addKeyFrame(t + 3, "rightCalf", MatrixCreateTranslation(0, -20, 0).mul(MatrixCreateRotationYPR(0,Math.PI/4,0)));
+
+    anim.addKeyFrame(t + 4, "leftThigh", MatrixCreateTranslation(0, -20, 0).mul(MatrixCreateRotationYPR(0,Math.PI/4,0)));
+    anim.addKeyFrame(t + 4, "leftCalf", MatrixCreateTranslation(0, -20, 0).mul(MatrixCreateRotationYPR(0, Math.PI/8,0)));
+    anim.addKeyFrame(t + 4, "rightThigh", MatrixCreateTranslation(0, -20, 0).mul(MatrixCreateRotationYPR(0,-Math.PI/4,0)));
+    anim.addKeyFrame(t + 4, "rightCalf", MatrixCreateTranslation(0, -20, 0).mul(MatrixCreateRotationYPR(0,0,0)));
+
+    anim.addKeyFrame(t + 5, "rightThigh", MatrixCreateTranslation(0, -20, 0).mul(MatrixCreateRotationYPR(0,-Math.PI/8,0)));
+    anim.addKeyFrame(t + 5, "leftThigh", MatrixCreateTranslation(0, -20, 0).mul(MatrixCreateRotationYPR(0,Math.PI/8,0)));
+
+    anim.addKeyFrame(t + 6, "rightThigh", MatrixCreateTranslation(0, -20, 0).mul(MatrixCreateRotationYPR(0,0,0)));
+    anim.addKeyFrame(t + 6, "rightCalf", MatrixCreateTranslation(0, -20, 0).mul(MatrixCreateRotationYPR(0,0,0)));
+    anim.addKeyFrame(t + 6, "leftThigh", MatrixCreateTranslation(0, -20, 0).mul(MatrixCreateRotationYPR(0,0,0)));
+    anim.addKeyFrame(t + 6, "leftCalf", MatrixCreateTranslation(0, -20, 0).mul(MatrixCreateRotationYPR(0,Math.PI/2,0)));
+
+    anim.addKeyFrame(t + 7, "rightThigh", MatrixCreateTranslation(0, -20, 0).mul(MatrixCreateRotationYPR(0,Math.PI/8,0)));
+    anim.addKeyFrame(t + 7, "leftThigh", MatrixCreateTranslation(0, -20, 0).mul(MatrixCreateRotationYPR(0,-Math.PI/8,0)));
+    anim.addKeyFrame(t + 7, "leftCalf", MatrixCreateTranslation(0, -20, 0).mul(MatrixCreateRotationYPR(0,Math.PI/4,0)));
+
+    anim.addKeyFrame(t + 8, "rightThigh", MatrixCreateTranslation(0, -20, 0).mul(MatrixCreateRotationYPR(0,Math.PI/4,0)));
+    anim.addKeyFrame(t + 8, "rightCalf", MatrixCreateTranslation(0, -20, 0).mul(MatrixCreateRotationYPR(0, Math.PI/8,0)));
+    anim.addKeyFrame(t + 8, "leftThigh", MatrixCreateTranslation(0, -20, 0).mul(MatrixCreateRotationYPR(0,-Math.PI/4,0)));
+    anim.addKeyFrame(t + 8, "leftCalf", MatrixCreateTranslation(0, -20, 0).mul(MatrixCreateRotationYPR(0,0,0)));
+}
+insertLegFrames(0);
+insertLegFrames(8);
+insertLegFrames(16);
+insertLegFrames(24);
 //anim.addKeyFrame(32, "chest", MatrixCreateTranslation(0,0,-400));
 
 ctx.clearRect(0, 0, canvas.width, canvas.height);
