@@ -22,7 +22,7 @@
 <script type='text/javascript'>//<![CDATA[
 
 var canvas = document.getElementById("canvas");
-canvas.width = 200;
+canvas.width = 400;
 canvas.height = 200;
 var ctx = canvas.getContext('2d');
 
@@ -123,12 +123,12 @@ insertLegFrames(0);
 insertLegFrames(8);
 insertLegFrames(16);
 insertLegFrames(24);
-//anim.addKeyFrame(32, "chest", MatrixCreateTranslation(0,0,-400));
+//anim.addKeyFrame(32, "chest", MatrixCreateTranslation(0,0,400));
 
 ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 var prev_timestamp = 0;
-var projection = MatrixCreateProjection(1 / Math.PI/4, 1, 1, 20)
+var projection = MatrixCreateProjection(Math.PI/2, 2, 1, 20)
 var theta = 0;
 ctx.setTransform(1, 0, 0, -1, canvas.width / 2, canvas.height / 2);
 function loop(timestamp) {
@@ -137,7 +137,6 @@ function loop(timestamp) {
     ctx.clearRect(-canvas.width / 2, -canvas.height/2, canvas.width, canvas.height);
     theta += delta / 1000 * Math.PI / 2;
     if(theta > Math.PI * 2) theta -= Math.PI * 2;
-    //var view = MatrixCreateView(rotation.transform(new Vector(1,0,0)), new Vector(0,1,0), rotation.transform(new Vector(0,0,-1)), new Vector(Math.cos(theta) * 200,0,Math.sin(theta) * 200));
     anim.update(delta / 150);
     var view = MatrixCreateView(-Math.PI / 2 + theta, 0, new Vector(Math.cos(theta) * 200, 0, Math.sin(theta) * 200));
     //var view = MatrixCreateView(Math.PI / 2,0, new Vector(-400,0,200));
