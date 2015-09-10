@@ -84,11 +84,15 @@ MatrixCreateScale = function(x, y, z) {
 }
 MatrixCreateProjection = function(fov, aspect, near, far) {
     P = new Matrix();
-    P.values[0][0] = 1 / (aspect * Math.tan(fov / 2));
-    P.values[1][1] = 1 / (Math.tan(fov / 2));
-    P.values[2][2] = - (far + near) / (far - near)
-    P.values[3][2] = 2 * far * near / (far - near)
-    P.values[2][3] = -1;
+    //P.values[0][0] = 1 / (aspect * Math.tan(fov / 2));
+    //P.values[1][1] = 1 / (Math.tan(fov / 2));
+    //P.values[2][2] = (far + near) / (near - far)
+    //P.values[3][2] = 2 * far * near / (near - far)
+    //P.values[2][3] = -1;
+    //P.values[3][3] = 0;
+    P.values[2][2] = 0;
+    P.values[2][3] = 1;
+    P.values[3][2] = 1;
     P.values[3][3] = 0;
     return P;
 }

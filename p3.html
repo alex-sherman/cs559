@@ -22,27 +22,69 @@
 <script type='text/javascript'>//<![CDATA[
 
 var canvas = document.getElementById("canvas");
-canvas.width = 400;
+canvas.width = 200;
 canvas.height = 200;
 var ctx = canvas.getContext('2d');
 
-LineBone = function(name, parent, color, p1, p2) {
+BoxBone = function(name, parent, color, min, max) {
     Bone.apply(this, [name, parent]);
     this.color = color;
-    this.p1 = p1;
-    this.p2 = p2;
-    this.length = length;
+    this.points = [
+                    new Vector(min.x, min.y, min.z),
+                    new Vector(max.x, min.y, min.z),
+                    new Vector(min.x, min.y, max.z),
+                    new Vector(max.x, min.y, max.z),
+
+                    new Vector(min.x, max.y, min.z),
+                    new Vector(max.x, max.y, min.z),
+                    new Vector(min.x, max.y, max.z),
+                    new Vector(max.x, max.y, max.z),
+                  ];
+    this.pairs = [[0,4],[1,5],[2,6],[3,7], //Edges
+                  [0,1],[1,3],[3,2],[2,0], //Top
+                  [4,5],[5,7],[7,6],[6,4]]; //Botom
+    this.min = min;
+    this.max = max;
+    this.draw = function(ctx, transform) {
+        var transform = transform.mul(this.withParentTransform());
+        var transformedPoints = this.points.map(function(p) { return transform.transform(p); });
+        var color = this.color;
+        this.pairs.forEach(function(pair) {
+            var p1 = transformedPoints[pair[0]];
+            var p2 = transformedPoints[pair[1]];
+            if(p1.w <= 0 || p2.w <= 0) return;
+            p1 = p1.mul(1 / p1.w);
+            p2 = p2.mul(1 / p2.w);
+            ctx.beginPath();
+            ctx.strokeStyle = color;
+            ctx.moveTo(p1.x * canvas.width, p1.y * canvas.height);
+            ctx.lineTo(p2.x * canvas.width, p2.y * canvas.height);
+            ctx.stroke();
+        })
+    }
 }
 
-root = new LineBone("root", null, "black", new Vector(0,-10,0), new Vector(0,10,0));
-right = new LineBone("right", root, "red", new Vector(10,-10,0), new Vector(10,10,0));
-left = new LineBone("left", root, "blue", new Vector(-10,-10,0), new Vector(-10,10,0));
-top = new LineBone("top", root, "pink", new Vector(-10,10,0), new Vector(10,10,0));
+root = new BoxBone("root", null, "black", new Vector(-1,-10, -1), new Vector(1,10,1));
+root.transform = MatrixCreateRotationYPR(0,0,0);
+right = new BoxBone("right", root, "red", new Vector(9,-10,-1), new Vector(11,10,1));
+left = new BoxBone("left", root, "blue", new Vector(-11,-10,-1), new Vector(-9,10,1));
+
+chest = new BoxBone("chest", null, "red", new Vector(-20,-20,-10), new Vector(20,20,10));
+head = new BoxBone("head", chest, "orange", new Vector(-10,-10,-10), new Vector(10,10,10));
+leftThigh = new BoxBone("leftThigh", chest, "blue", new Vector(-20,-45,-10), new Vector(0,-20,10));
+leftCalf = new BoxBone("leftCalf", leftThigh, "blue", new Vector(-20,-70, -10), new Vector(0,-45,10));
+rightThigh = new BoxBone("rightThigh", chest, "blue", new Vector(0,-45,-10), new Vector(20,-20,10));
+rightCalf = new BoxBone("rightCalf", rightThigh, "blue", new Vector(0,-70, -10), new Vector(20,-45,10));
+
+anim = new Animation(chest);
+anim.addKeyFrame(0, "chest", MatrixCreateTranslation(0,0,0));
+anim.addKeyFrame(0, "head", MatrixCreateTranslation(0, 30,0));
+//anim.addKeyFrame(32, "chest", MatrixCreateTranslation(0,0,-400));
 
 ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 var prev_timestamp = 0;
-var projection = MatrixCreateProjection(1 / Math.PI/6, .5, 0, 1)
+var projection = MatrixCreateProjection(1 / Math.PI/4, 1, 1, 20)
 var theta = 0;
 ctx.setTransform(1, 0, 0, -1, canvas.width / 2, canvas.height / 2);
 function loop(timestamp) {
@@ -52,22 +94,13 @@ function loop(timestamp) {
     theta += delta / 1000 * Math.PI / 2;
     if(theta > Math.PI * 2) theta -= Math.PI * 2;
     //var view = MatrixCreateView(rotation.transform(new Vector(1,0,0)), new Vector(0,1,0), rotation.transform(new Vector(0,0,-1)), new Vector(Math.cos(theta) * 200,0,Math.sin(theta) * 200));
-    var view = MatrixCreateView(Math.PI / 2 + theta, 0, new Vector(Math.cos(theta) * 20, 0, Math.sin(theta) * 20));
-    for(var key in root.bones) {
-        var bone = root.bones[key];
-        var world = bone.withParentTransform();
-        var transform = projection.mul(view).mul(world);
-        var p1 = transform.transform(bone.p1);
-        var p2 = transform.transform(bone.p2);
-        if(p1.w <= 0 || p2.w <= 0) continue;
-        p1 = p1.mul(1 / p1.w);
-        p2 = p2.mul(1 / p2.w);
-
-        ctx.beginPath();
-        ctx.strokeStyle = bone.color;
-        ctx.moveTo(p1.x, p1.y);
-        ctx.lineTo(p2.x, p2.y);
-        ctx.stroke();
+    anim.update(delta / 150);
+    var view = MatrixCreateView(-Math.PI / 2 + theta, 0, new Vector(Math.cos(theta) * 200, 0, Math.sin(theta) * 200));
+    //var view = MatrixCreateView(Math.PI / 2,0, new Vector(-400,0,200));
+    var transform = projection.mul(view);
+    for(var key in chest.bones) {
+        var bone = chest.bones[key];
+        bone.draw(ctx, transform);        
     }
     prev_timestamp = timestamp;
     window.requestAnimationFrame(loop);
