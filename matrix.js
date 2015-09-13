@@ -95,7 +95,7 @@ MatrixCreateProjection = function(fov, aspect, near, far) {
     return P;
 }
 MatrixCreateView = function(yaw, pitch, position) {
-    R = MatrixCreateRotationYPR(yaw, pitch, 0);
-    V = R.mul(MatrixCreateTranslationV(position));
+    R = MatrixCreateRotationYPR(-yaw, -pitch, 0);
+    V = R.mul(MatrixCreateTranslationV(position.mul(-1)));
     return V;
 }
