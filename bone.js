@@ -1,6 +1,7 @@
-Bone = function(name, parent) {
+Bone = function(name, parent, invBindPose) {
     this.name = name;
     this.parent = parent;
+    this.invBindPose = invBindPose || new Matrix();
     if(parent == null) {
         this.bones = {};
         this.bones[name] = this;
@@ -16,5 +17,8 @@ Bone = function(name, parent) {
 
     this.withParentTransform = function() {
         return this.parent == null ? this.transform : this.parent.withParentTransform().mul(this.transform);
+    }
+    this.absoluteTransform = function() {
+        return this.withParentTransform().mul(this.invBindPose);
     }
 }
