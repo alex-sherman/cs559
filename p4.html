@@ -140,8 +140,8 @@ ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 var prev_timestamp = 0;
 var projection = MatrixCreateProjection(Math.PI/2, 5/4, 1, 20);
-var cameraPosition = new Vector(0, 0, -3);
-var theta = 0;
+var cameraPosition = new Vector(10, 0, 10);
+var theta = -3 * Math.PI/4;
 var phi = 0;
 var moveSpeed = 0.1;
 var moveDir = new Vector();
