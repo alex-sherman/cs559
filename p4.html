@@ -34,7 +34,7 @@
 <script type='text/javascript'>//<![CDATA[
 
 var canvas = document.getElementById("canvas");
-canvas.width = 500;
+canvas.width = 800;
 canvas.height = 400;
 var ctx = canvas.getContext('2d');
 var renderManager = new RenderManager(ctx, canvas.width, canvas.height);
@@ -48,7 +48,7 @@ new Bone("rightThigh", skeleton, MatrixCreateTranslation(-1, 2, 0));
 new Bone("rightCalf", skeleton.bones["rightThigh"], MatrixCreateTranslation(-1, 4, 0));
 
 var mesh = new Mesh(skeleton);
-var meshPart = Primitive.Cube(new Vector(-2, -2, -1), new Vector(2, 2, 1));
+var meshPart = Primitive.Cube(new Vector(-2, -2, -1.5), new Vector(2, 2, 1.5));
 meshPart.bones = ["chest", "leftThigh", "rightThigh"];
 meshPart.vertices[0].weights = [0.8, 0.2, 0];
 meshPart.vertices[1].weights = [0.8, 0.2, 0];
@@ -139,7 +139,7 @@ initMouseHandling($("#canvas"), moveCallback);
 ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 var prev_timestamp = 0;
-var projection = MatrixCreateProjection(Math.PI/2, 5/4, 1, 20);
+var projection = MatrixCreateProjection(Math.PI/2, 2, 1, 20);
 var cameraPosition = new Vector(10, 0, 10);
 var theta = -3 * Math.PI/4;
 var phi = 0;

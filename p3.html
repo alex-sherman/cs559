@@ -70,9 +70,9 @@ BoxBone = function(name, parent, color, min, max) {
 chest = new BoxBone("chest", null, "red", new Vector(-20,-20,-15), new Vector(20,20,15));
 head = new BoxBone("head", chest, "orange", new Vector(-10,-10,-10), new Vector(10,10,10));
 leftThigh = new BoxBone("leftThigh", chest, "blue", new Vector(-20,-25,-10), new Vector(0,0,10));
-leftCalf = new BoxBone("leftCalf", leftThigh, "blue", new Vector(-20,-30, -10), new Vector(0,0,10));
+leftCalf = new BoxBone("leftCalf", leftThigh, "green", new Vector(-20,-30, -10), new Vector(0,0,10));
 rightThigh = new BoxBone("rightThigh", chest, "blue", new Vector(0,-25,-10), new Vector(20,0,10));
-rightCalf = new BoxBone("rightCalf", rightThigh, "blue", new Vector(0,-30, -10), new Vector(20,0,10));
+rightCalf = new BoxBone("rightCalf", rightThigh, "green", new Vector(0,-30, -10), new Vector(20,0,10));
 
 anim = new Animation(chest);
 anim.addKeyFrame(0, "chest", MatrixCreateTranslation(0,0,0));
@@ -132,8 +132,8 @@ ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 var prev_timestamp = 0;
 var projection = MatrixCreateProjection(Math.PI/2, 2, 1, 20);
-var cameraPosition = new Vector(0, 0, -200);
-var theta = 0;
+var cameraPosition = new Vector(100, 0, 100);
+var theta = -3 * Math.PI/4;
 var phi = 0;
 var moveSpeed = 5;
 var moveDir = new Vector();
