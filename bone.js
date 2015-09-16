@@ -1,4 +1,3 @@
-
 Bone = function(name, parent) {
     this.name = name;
     this.parent = parent;

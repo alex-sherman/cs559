@@ -1,6 +1,9 @@
-Matrix = function() {
+Matrix = function(zero) {
     this.type = "Matrix"
-    this.values = [[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]];
+    if(!zero)
+        this.values = [[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]];
+    else
+        this.values = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]];
 
     this.mul = function(other) {
         function mulIndex(i, j) {
@@ -14,6 +17,15 @@ Matrix = function() {
         for (var i = 0; i < 4; i++) {
             for (var j = 0; j < 4; j++) {
                 output.values[i][j] = mulIndex.apply(this, [i, j]);
+            };
+        };
+        return output;
+    }
+    this.derpLerp = function(w, other) {
+        output = new Matrix();
+        for (var i = 0; i < 4; i++) {
+            for (var j = 0; j < 4; j++) {
+                output.values[i][j] = this.values[i][j] + other.values[i][j] * w;
             };
         };
         return output;

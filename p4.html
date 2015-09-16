@@ -1,0 +1,104 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>3D Solid Walker</title>
+
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="vector.js"></script>
+    <script src="animation.js"></script>
+    <script src="matrix.js"></script>
+    <script src="bone.js"></script>
+    <script src="inputHandler.js"></script>
+    <script src="primitive.js"></script>
+    <script src="mesh.js"></script>
+  
+</head>
+<body>
+    <div id="containerDiv" align="center">
+        <canvas id="canvas"></canvas>
+    </div>
+  
+
+
+
+<script type='text/javascript'>//<![CDATA[
+
+var canvas = document.getElementById("canvas");
+canvas.width = 400;
+canvas.height = 200;
+var ctx = canvas.getContext('2d');
+
+var skeleton = new Bone("chest", null);
+
+new Bone("head", skeleton);
+new Bone("leftThigh", skeleton);
+new Bone("leftCalf", skeleton.bones["leftThigh"]);
+new Bone("rightThigh", skeleton);
+new Bone("rightCalf", skeleton.bones["rightThigh"]);
+
+var mesh = new Mesh(skeleton);
+var meshPart = Primitive.Cube(new Vector(-2, -2, -1), new Vector(2, 2, 1));
+meshPart.bones.push(["chest"]);
+meshPart.color = "red";
+mesh.parts.push(meshPart);
+
+meshPart = Primitive.Cube();
+meshPart.bones.push(["leftThigh"]);
+meshPart.color = "blue";
+mesh.parts.push(meshPart);
+
+meshPart = Primitive.Cube();
+meshPart.bones.push(["rightThigh"]);
+meshPart.color = "blue";
+mesh.parts.push(meshPart);
+
+var mouseDiff = {x: 0, y: 0};
+function moveCallback(x, y) {
+    mouseDiff.x += x;
+    mouseDiff.y += y;
+}
+initMouseHandling($("#canvas"), moveCallback);
+ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+var prev_timestamp = 0;
+var projection = MatrixCreateProjection(Math.PI/2, 2, 1, 20);
+var cameraPosition = new Vector(0, 0, -3);
+var theta = 0;
+var phi = 0;
+var moveSpeed = 0.1;
+var moveDir = new Vector();
+var mouseSensitivity = 1 / 100;
+ctx.setTransform(1, 0, 0, -1, canvas.width / 2, canvas.height / 2);
+function loop(timestamp) {
+    var delta = 0;
+    if (prev_timestamp > 0) delta = timestamp - prev_timestamp;
+    ctx.clearRect(-canvas.width / 2, -canvas.height/2, canvas.width, canvas.height);
+
+    moveDir = new Vector();
+    if(keyboardState[87]) moveDir.z += 1;
+    if(keyboardState[83]) moveDir.z -= 1;
+    if(keyboardState[68]) moveDir.x += 1;
+    if(keyboardState[65]) moveDir.x -= 1;
+    moveDir = MatrixCreateRotationYPR(theta, 0, 0).transform(moveDir);
+    cameraPosition = cameraPosition.add(moveDir.mul(moveSpeed));
+
+    theta += mouseDiff.x * mouseSensitivity;
+    phi += mouseDiff.y * mouseSensitivity;
+    if(theta > Math.PI * 2) theta -= Math.PI * 2;
+    var view = MatrixCreateView(theta, phi, cameraPosition);
+    //var view = MatrixCreateView(Math.PI / 2,0, new Vector(-400,0,200));
+    var viewProjection = projection.mul(view);
+    mesh.draw(ctx, viewProjection, canvas.width, canvas.height);
+    prev_timestamp = timestamp;
+    mouseDiff = {x: 0, y: 0};
+    window.requestAnimationFrame(loop);
+}
+loop(0);
+//]]> 
+
+</script>
+
+</html>
+
