@@ -14,6 +14,7 @@
     <script src="primitive.js"></script>
     <script src="mesh.js"></script>
     <script src="renderManager.js"></script>
+    <script src="class.js"></script>
   
 </head>
 <body>
@@ -157,6 +158,8 @@ function loop(timestamp) {
     if(keyboardState[83]) moveDir.z -= 1;
     if(keyboardState[68]) moveDir.x += 1;
     if(keyboardState[65]) moveDir.x -= 1;
+    if(keyboardState[32]) moveDir.y += 1;
+    if(keyboardState[17]) moveDir.y -= 1;
     moveDir = MatrixCreateRotationYPR(theta, 0, 0).transform(moveDir);
     cameraPosition = cameraPosition.add(moveDir.mul(moveSpeed));
 
