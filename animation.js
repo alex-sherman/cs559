@@ -1,7 +1,15 @@
-KeyFrame = function(time, bone, transform) {
+KeyFrame = function(time, bone, translation, rotation) {
     this.time = time;
-    this.transform = transform;
+    this.translation = translation || new Vector(0,0,0);
+    this.rotation = rotation || new Vector(0,0,0);
     this.bone = bone;
+}
+KeyFrame.lerp = function(time, a, b) {
+    var kf_delta = b.time - a.time;
+    var kf_w = kf_delta == 0 ? 0 : (time - a.time) / kf_delta;
+    var rot = Vector.lerp(kf_w, a.rotation, b.rotation);
+    var tran = Vector.lerp(kf_w, a.translation, b.translation);
+    return MatrixCreateTranslationV(tran).mul(Matrix.CreateRotationV(rot));
 }
 
 Animation = function(root) {
@@ -12,8 +20,10 @@ Animation = function(root) {
     this.length = 0;
     this.currentIndex = 0;
     //TODO: Order on insert
-    this.addKeyFrame = function(time, bone, transform) {
-        this.keyFrames.push(new KeyFrame(time, bone, transform));
+    this.addKeyFrame = function(time, bone, translation, rotation) {
+        var i = 0;
+        for (var i = 0; i < this.keyFrames.length && this.keyFrames[i].time < time; i++) {}
+        this.keyFrames.splice(i, 0, new KeyFrame(time, bone, translation, rotation));
         this.length = Math.max.apply(null, this.keyFrames.map(function (kf) {
                 return kf.time;
             }));
@@ -25,8 +35,8 @@ Animation = function(root) {
         {
             for(var bone_key in this.root.bones) {
                 var bone = this.root.bones[bone_key];
-                bone.prev_kf = {time: 0, transform: new Matrix()};
-                bone.next_kf = {time: 0, transform: new Matrix()};
+                bone.prev_kf = new KeyFrame(0, bone_key);
+                bone.next_kf = new KeyFrame(0, bone_key);
             }
             this.time = 0;
             this.currentIndex = 0;
@@ -48,9 +58,7 @@ Animation = function(root) {
         //Interpolating all keyframes on each bone
         for(var bone_key in this.root.bones) {
             var bone = this.root.bones[bone_key];
-            var kf_delta = bone.next_kf.time - bone.prev_kf.time;
-            var kf_w = kf_delta == 0 ? 0 : (this.time - bone.prev_kf.time) / kf_delta;
-            bone.transform = bone.prev_kf.transform.lerp(kf_w, bone.next_kf.transform);
+            bone.transform = KeyFrame.lerp(this.time, bone.prev_kf, bone.next_kf);
         }
     }
 }

@@ -11,8 +11,8 @@ Bone = function(name, parent, invBindPose) {
         while(curNode.parent != null) { curNode = curNode.parent; }
         curNode.bones[this.name] = this;
     }
-    this.prev_kf = {time: 0, transform: new Matrix()};
-    this.next_kf = {time: 0, transform: new Matrix()};
+    this.prev_kf = new KeyFrame(0, this.name);
+    this.next_kf = new KeyFrame(0, this.name);
     this.transform = new Matrix();
 
     this.withParentTransform = function() {

@@ -1,27 +1,30 @@
-Matrix = function(zero) {
-    this.type = "Matrix"
-    if(!zero)
-        this.values = [[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]];
-    else
-        this.values = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]];
+Matrix = Class.extend({
+    init: function(zero) {
+        this.type = "Matrix"
+        if(!zero)
+            this.values = [[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]];
+        else
+            this.values = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]];
+    },
 
-    this.mul = function(other) {
-        function mulIndex(i, j) {
-            var output = 0;
-            for (var k = 0; k < 4; k++) {
-                output += this.values[k][j] * other.values[i][k];
-            };
-            return output;
-        }
+    _mulIndex: function(other, i, j) {
+        var output = 0;
+        for (var k = 0; k < 4; k++) {
+            output += this.values[k][j] * other.values[i][k];
+        };
+        return output;
+    },
+
+    mul: function(other) {
         var output = new Matrix();
         for (var i = 0; i < 4; i++) {
             for (var j = 0; j < 4; j++) {
-                output.values[i][j] = mulIndex.apply(this, [i, j]);
+                output.values[i][j] = this._mulIndex(other, i, j);
             };
         };
         return output;
-    }
-    this.derpLerp = function(w, other) {
+    },
+    derpLerp: function(w, other) {
         output = new Matrix();
         for (var i = 0; i < 4; i++) {
             for (var j = 0; j < 4; j++) {
@@ -29,8 +32,8 @@ Matrix = function(zero) {
             };
         };
         return output;
-    }
-    this.lerp = function(w, other) {
+    },
+    lerp: function(w, other) {
         output = new Matrix();
         for (var i = 0; i < 4; i++) {
             for (var j = 0; j < 4; j++) {
@@ -38,8 +41,8 @@ Matrix = function(zero) {
             };
         };
         return output;
-    }
-    this.transform = function(vector) {
+    },
+    transform: function(vector) {
         function rowMul(j, v) {
             var output = 0;
             for (var i = 0; i < 4; i++) {
@@ -55,8 +58,8 @@ Matrix = function(zero) {
             rowMul.apply(this, [3, vmatrix]));
         return output;
     }
-}
-MatrixCreateRotationYPR = function(yaw, pitch, roll) {
+});
+Matrix.CreateRotationYPR = function(yaw, pitch, roll) {
     var RX = new Matrix();
     RX.values[1][1] = Math.cos(pitch)
     RX.values[2][2] = Math.cos(pitch)
@@ -74,6 +77,27 @@ MatrixCreateRotationYPR = function(yaw, pitch, roll) {
     RZ.values[1][1] = Math.cos(roll)
     RZ.values[1][0] = -Math.sin(roll)
     RZ.values[0][1] = Math.sin(roll)
+
+    return RX.mul(RY).mul(RZ);
+}
+Matrix.CreateRotationV = function(vector) {
+    var RX = new Matrix();
+    RX.values[1][1] = Math.cos(vector.x)
+    RX.values[2][2] = Math.cos(vector.x)
+    RX.values[2][1] = -Math.sin(vector.x)
+    RX.values[1][2] = Math.sin(vector.x)
+
+    var RY = new Matrix();
+    RY.values[0][0] = Math.cos(vector.y)
+    RY.values[2][2] = Math.cos(vector.y)
+    RY.values[0][2] = -Math.sin(vector.y)
+    RY.values[2][0] = Math.sin(vector.y)
+
+    var RZ = new Matrix();
+    RZ.values[0][0] = Math.cos(vector.z)
+    RZ.values[1][1] = Math.cos(vector.z)
+    RZ.values[1][0] = -Math.sin(vector.z)
+    RZ.values[0][1] = Math.sin(vector.z)
 
     return RX.mul(RY).mul(RZ);
 }
@@ -107,7 +131,7 @@ MatrixCreateProjection = function(fov, aspect, near, far) {
     return P;
 }
 MatrixCreateView = function(yaw, pitch, position) {
-    R = MatrixCreateRotationYPR(-yaw, -pitch, 0);
+    R = Matrix.CreateRotationYPR(-yaw, -pitch, 0);
     V = R.mul(MatrixCreateTranslationV(position.mul(-1)));
     return V;
 }
