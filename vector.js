@@ -1,6 +1,6 @@
 Vector = Class.extend({
+    type: "vector",
     init: function(x, y, z, w) {
-        this.type = "Vector";
         this.x = typeof x == 'undefined' ? 0 : x;
         this.y = typeof y == 'undefined' ? 0 : y;
         this.z = typeof z == 'undefined' ? 0 : z;
