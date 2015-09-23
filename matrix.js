@@ -42,20 +42,20 @@ Matrix = Class.extend({
         };
         return output;
     },
-    transform: function(vector) {
-        function rowMul(j, v) {
+    _rowMul: function(j, v) {
             var output = 0;
             for (var i = 0; i < 4; i++) {
                 output += this.values[i][j] * v[i];
             };
             return output;
-        }
+    },
+    transform: function(vector) {
         var vmatrix = [vector.x, vector.y, vector.z, vector.w];
         var output = new Vector(
-            rowMul.apply(this, [0, vmatrix]),
-            rowMul.apply(this, [1, vmatrix]),
-            rowMul.apply(this, [2, vmatrix]),
-            rowMul.apply(this, [3, vmatrix]));
+            this._rowMul(0, vmatrix),
+            this._rowMul(1, vmatrix),
+            this._rowMul(2, vmatrix),
+            this._rowMul(3, vmatrix));
         return output;
     }
 });

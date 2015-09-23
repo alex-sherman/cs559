@@ -21,12 +21,11 @@ Bone = Class.extend({
         this.prev_kf = new KeyFrame(0, this.name);
         this.next_kf = new KeyFrame(0, this.name);
         this.transform = new Matrix();
-
-        this.withParentTransform = function() {
-            return this.parent == null ? this.transform : this.parent.withParentTransform().mul(this.transform);
-        }
-        this.absoluteTransform = function() {
-            return this.withParentTransform().mul(this.invBindPose);
-        }
+    },
+    withParentTransform: function() {
+        return this.parent == null ? this.transform : this.parent.withParentTransform().mul(this.transform);
+    },
+    absoluteTransform: function() {
+        return this.withParentTransform().mul(this.invBindPose);
     }
 });

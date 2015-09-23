@@ -29,7 +29,10 @@ RenderManager = function(ctx, width, height) {
             path.moveTo(tri.points[0].x * this.width, tri.points[0].y * this.height);
             path.lineTo(tri.points[1].x * this.width, tri.points[1].y * this.height);
             path.lineTo(tri.points[2].x * this.width, tri.points[2].y * this.height);
-            this.ctx.fill(path);
+            path.closePath();
+            this.ctx.strokeStyle = tri.color;
+            this.ctx.stroke(path);
+            //this.ctx.fill(path);
 
         };
         this.queue = []
