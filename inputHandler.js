@@ -1,3 +1,5 @@
+//Adapted from a tutorial I found somewhere, I can't find the original source
+//but I won't claim it as my own
 
 var keyboardState = {};
 
@@ -6,12 +8,17 @@ function initMouseHandling(canvas, moveCallback) {
     document.addEventListener('mozpointerlockchange', changeCallback, false);
     document.addEventListener('webkitpointerlockchange', changeCallback, false);
     var canvasElement = canvas.get()[0];
-
+    var mouseCaptured = false;
+    var allowedKeys = [116];
     $(document).keydown(function(event) {
         keyboardState[event.which] = true;
+        if(allowedKeys.indexOf(event.which) == -1)
+            event.preventDefault();
     });
     $(document).keyup(function(event) {
         keyboardState[event.which] = false;
+        if(allowedKeys.indexOf(event.which) == -1)
+            event.preventDefault();
     });
 
     canvas.click(function () {
@@ -24,7 +31,11 @@ function initMouseHandling(canvas, moveCallback) {
     });
 
     var firstMoveCallback = false;
-
+    function isCaptured() {
+        return document.pointerLockElement === canvasElement ||
+                document.mozPointerLockElement === canvasElement ||
+                document.webkitPointerLockElement === canvasElement;
+    }
     function moveCallbackCaller(event) {
         if(firstMoveCallback) {
             firstMoveCallback = false;
@@ -43,9 +54,7 @@ function initMouseHandling(canvas, moveCallback) {
     }
 
     function changeCallback(e) {
-        if (document.pointerLockElement === canvasElement ||
-                document.mozPointerLockElement === canvasElement ||
-                document.webkitPointerLockElement === canvasElement) {
+        if (isCaptured()) {
 
             // we've got a pointerlock for our element, add a mouselistener
             document.addEventListener("mousemove", moveCallbackCaller, false);
