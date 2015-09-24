@@ -100,24 +100,24 @@ Matrix.CreateRotationV = function(vector) {
 
     return RX.mul(RY).mul(RZ);
 }
-MatrixCreateTranslation = function(x, y, z) {
+Matrix.CreateTranslation = function(x, y, z) {
     T = new Matrix();
     T.values[3][0] = x;
     T.values[3][1] = y;
     T.values[3][2] = z;
     return T;
 }
-MatrixCreateTranslationV = function(vector) {
-    return MatrixCreateTranslation(vector.x, vector.y, vector.z);
+Matrix.CreateTranslationV = function(vector) {
+    return Matrix.CreateTranslation(vector.x, vector.y, vector.z);
 }
-MatrixCreateScale = function(x, y, z) {
+Matrix.CreateScale = function(x, y, z) {
     S = new Matrix();
     S.values[0][0] = x;
     S.values[1][1] = y;
     S.values[2][2] = z;
     return S;
 }
-MatrixCreateProjection = function(fov, aspect, near, far) {
+Matrix.CreateProjection = function(fov, aspect, near, far) {
     P = new Matrix();
     P.values[0][0] = 1 / (aspect * Math.tan(fov / 2));
     P.values[1][1] = 1 / (Math.tan(fov / 2));
@@ -129,8 +129,8 @@ MatrixCreateProjection = function(fov, aspect, near, far) {
     P.values[3][3] = 0;
     return P;
 }
-MatrixCreateView = function(yaw, pitch, position) {
+Matrix.CreateView = function(yaw, pitch, position) {
     R = Matrix.CreateRotationYPR(-yaw, -pitch, 0);
-    V = R.mul(MatrixCreateTranslationV(position.mul(-1)));
+    V = R.mul(Matrix.CreateTranslationV(position.mul(-1)));
     return V;
 }

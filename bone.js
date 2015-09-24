@@ -1,14 +1,18 @@
 Skeleton = Component.extend({
-    init: (function Skeleton(root) {
+    init: (function Skeleton() {
         Component.init.apply(this);
         this.bones = {}
     }),
     addBone: function(bone, parent) {
         this.bones[bone.name] = bone;
         bone.skeleton = this;
-        bone.parent = this.bones[parent];
+        bone.parent = parent;
+    },
+    update: function(dt) {
+        for(bone in this.bones) {
+            this.bones[bone].currentTransform = this.bones[bone].absoluteTransform();
+        }
     }
-    
 })
 
 Bone = Class.extend({
