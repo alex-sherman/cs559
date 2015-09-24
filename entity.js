@@ -1,11 +1,10 @@
 Component = Class.extend({
-    type: "Component",
-    init: function() {
+    init: (function Component() {
         this.entity = null;
-    }
+    })
 })
 
-EntityCallbackFunc = function(propertyName) {
+EntityCallthrough = function(propertyName) {
     return function() {
         for (var i = 0; i < this.components.length; i++) {
             var comp = this.components[i];
@@ -16,17 +15,16 @@ EntityCallbackFunc = function(propertyName) {
     }
 }
 Entity = Class.extend({
-    type: "Entity",
-    init: function() {
+    init: (function Entity() {
         components = arguments || [];
         this.components = [];
         this.callbacks = {};
         for (var i = 0; i < components.length; i++) {
             this.addComponent(components[i]);
         };
-    },
+    }),
     addComponent: function(component) {
-        var propName = component.getType().typeName;
+        var propName = component.getType().name;
         if(!propName) throw new Error("Components must have a type name defined");
         this.components.push(component);
         this[propName] = component;
@@ -41,6 +39,6 @@ Entity = Class.extend({
             }
         }
     },
-    update: EntityCallbackFunc("update"),
-    draw: EntityCallbackFunc("draw")
+    update: EntityCallthrough("update"),
+    draw: EntityCallthrough("draw")
 });

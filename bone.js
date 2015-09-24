@@ -1,9 +1,8 @@
 Skeleton = Component.extend({
-    type: "Skeleton",
-    init: function(root) {
+    init: (function Skeleton(root) {
         Component.init.apply(this);
         this.bones = {}
-    },
+    }),
     addBone: function(bone, parent) {
         this.bones[bone.name] = bone;
         bone.skeleton = this;
@@ -13,7 +12,7 @@ Skeleton = Component.extend({
 })
 
 Bone = Class.extend({
-    init: function(name, invBindPose) {
+    init: (function Bone(name, invBindPose) {
         this.name = name;
         this.skeleton = null;
         this.parent = null;
@@ -21,7 +20,7 @@ Bone = Class.extend({
         this.prev_kf = new KeyFrame(0, this.name);
         this.next_kf = new KeyFrame(0, this.name);
         this.transform = new Matrix();
-    },
+    }),
     withParentTransform: function() {
         return this.parent == null ? this.transform : this.parent.withParentTransform().mul(this.transform);
     },

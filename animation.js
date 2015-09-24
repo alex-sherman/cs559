@@ -13,8 +13,7 @@ KeyFrame.lerp = function(time, a, b) {
 }
 
 Animation = Component.extend({
-    type: "Animation",
-    init: function() {
+    init: (function Animation() {
         Component.init.apply(this);
         this.keyFrames = [];
         this.time = 0;
@@ -22,8 +21,7 @@ Animation = Component.extend({
         this.length = 0;
         this.currentIndex = 0;
         this.speed = 1;
-    },
-    //TODO: Order on insert
+    }),
     addKeyFrame: function(time, bone, translation, rotation) {
         var i = 0;
         for (var i = 0; i < this.keyFrames.length && this.keyFrames[i].time < time; i++) {}

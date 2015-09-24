@@ -1,11 +1,10 @@
 Matrix = Class.extend({
-    init: function(zero) {
-        this.type = "Matrix"
+    init: (function Matrix(zero) {
         if(!zero)
             this.values = [[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]];
         else
             this.values = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]];
-    },
+    }),
 
     _mulIndex: function(other, i, j) {
         var output = 0;

@@ -1,8 +1,7 @@
 Mesh = Component.extend({
-    type: "Mesh",
-    init: function(meshParts) {
+    init: (function Mesh(meshParts) {
         this.parts = meshParts || [];
-    },
+    }),
     draw: function(renderManager) {
         for (var i = 0; i < this.parts.length; i++) {
             this.parts[i].draw(renderManager, this.entity.Skeleton);
@@ -11,11 +10,11 @@ Mesh = Component.extend({
 });
     
 MeshPart = Class.extend({
-    init: function(vertices, indices, bones) {
+    init: (function MeshPart(vertices, indices, bones) {
         this.vertices = vertices || [];
         this.indices = indices || [];
         this.bones = bones || [];
-    },
+    }),
     transformedPosition: function(vertex, skeleton) {
         var world = new Matrix();
         if(this.bones.length > 0) {

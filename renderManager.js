@@ -1,10 +1,10 @@
 RenderManager = Class.extend({
-    init: function(ctx, width, height) {
+    init: (function RenderManager(ctx, width, height) {
         this.ctx = ctx;
         this.width = width;
         this.height = height;
         this.queue = [];
-    },
+    }),
     addTriangle: function(P1, P2, P3, color) {
         this.queue.push({points: [P1, P2, P3], color: color});
     },

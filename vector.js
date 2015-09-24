@@ -1,11 +1,10 @@
 Vector = Class.extend({
-    type: "vector",
-    init: function(x, y, z, w) {
+    init: (function Vector(x, y, z, w) {
         this.x = typeof x == 'undefined' ? 0 : x;
         this.y = typeof y == 'undefined' ? 0 : y;
         this.z = typeof z == 'undefined' ? 0 : z;
         this.w = typeof w == 'undefined' ? 1 : w;
-    },
+    }),
 
     add: function(other) {
         return new Vector(this.x + other.x, this.y + other.y, this.z + other.z);
