@@ -17,16 +17,17 @@ MeshPart = Class.extend({
         this.bones = bones || [];
     }),
     transformedPosition: function(vertex, skeleton) {
-        var world = new Matrix();
+        var v = vec4.create();
+        v[3] = 1;
+        var vtmp = vec3.create();
         if(skeleton && this.bones.length > 0) {
-            world = new Matrix(true);
             for (var i = 0; i < vertex.weights.length; i++) {
                 var weight = vertex.weights[i];
                 var boneTransform = skeleton.bones[this.bones[weight.index]].currentTransform;
-                world = world.derpLerp(weight.weight, boneTransform);
+                vec3.add(v, v, vec3.scale(vtmp, vec3.transformMat4(vtmp, vertex.position, boneTransform), weight.weight));
             };
         }
-        return world.transform(vertex.position);
+        return v;
     },
     draw: function(renderManager, vertices, skeleton) {
         var transformedVertices = []

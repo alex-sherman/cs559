@@ -1,10 +1,10 @@
 function G3DJToMesh(obj) {
     function Vector3(vertex, i, vertices, attribute, attributeIndex) {
-        vertex[attribute.toLowerCase()] = new Vector(vertices[i], vertices[i + 1], vertices[i + 2]);
+        vertex[attribute.toLowerCase()] = vec3.fromValues(vertices[i], vertices[i + 1], vertices[i + 2]);
         return i + 3;
     }
     function Vector2(vertex, i, vertices, attribute, attributeIndex) {
-        vertex[attribute.toLowerCase()] = new Vector(vertices[i], vertices[i + 1]);
+        vertex[attribute.toLowerCase()] = vec3.fromValues(vertices[i], vertices[i + 1]);
         return i + 2;
     }
     function Blendweight(vertex, i, vertices, attribute, attributeIndex) {
@@ -58,9 +58,10 @@ function G3DJToMesh(obj) {
 }
 function G3DJToSkeleton(obj) {
     function objToBone(obj, skeleton, parent) {
-        var invBind = new Matrix();
+        var invBind = mat4.create();
         if("translation" in obj)
-            invBind = Matrix.CreateTranslation(obj.translation[0],obj.translation[1],obj.translation[2])
+            invBind = mat4.translate(invBind, invBind, vec3.fromValues(obj.translation[0],obj.translation[2],obj.translation[1]))
+        mat4.invert(invBind, invBind);
         var bone = new Bone(obj.id, invBind);
         if(obj.children){
             for (var i = 0; i < obj.children.length; i++) {

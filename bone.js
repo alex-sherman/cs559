@@ -20,15 +20,21 @@ Bone = Class.extend({
         this.name = name;
         this.skeleton = null;
         this.parent = null;
-        this.invBindPose = invBindPose || new Matrix();
+        this.invBindPose = invBindPose || mat4.create();
         this.prev_kf = new KeyFrame(0, this.name);
         this.next_kf = new KeyFrame(0, this.name);
-        this.transform = new Matrix();
+        this.transform = mat4.create();
+        this._withParentTransform = mat4.create();
+        this.currentTransform = mat4.create();
     }),
     withParentTransform: function() {
-        return this.parent == null ? this.transform : this.parent.withParentTransform().mul(this.transform);
+        if(this.parent == null)
+            this._withParentTransform = this.transform;
+        else
+            mat4.mul(this._withParentTransform, this.parent.withParentTransform(), this.transform);
+        return this._withParentTransform;
     },
     absoluteTransform: function() {
-        return this.withParentTransform().mul(this.invBindPose);
+        return mat4.mul(this.currentTransform, this.withParentTransform(), this.invBindPose);
     }
 });

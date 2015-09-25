@@ -1,7 +1,7 @@
 KeyFrame = function(time, bone, translation, rotation) {
     this.time = time;
-    this.translation = translation || new Vector(0,0,0);
-    this.rotation = rotation || new Vector(0,0,0);
+    this.translation = translation || vec3.fromValues(0,0,0);
+    this.rotation = rotation || vec3.fromValues(0,0,0);
     this.bone = bone;
 }
 KeyFrame.lerp = function(time, a, b) {

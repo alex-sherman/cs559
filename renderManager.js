@@ -13,13 +13,13 @@ RenderManager = Class.extend({
         this.queue.map(function(tri, i, q) {
             tri.z = 0;
             tri.points.map(function(vertex, j, triPoints) {
-                vertex = viewProjection.transform(vertex);
-                if(vertex.w > 0)
-                    vertex = vertex.mul(1 / vertex.w);
-                vertex.x = (vertex.x / 2 + 0.5) * self.width;
-                vertex.y = (-vertex.y / 2 + 0.5) * self.height;
+                vertex = vec4.transformMat4(vertex, vertex, viewProjection);
+                if(vertex[3] != 0)
+                    vec4.scale(vertex, vertex, 1 / vertex[3]);
+                vertex[0] = (vertex[0] / 2 + 0.5) * self.width;
+                vertex[1] = (-vertex[1] / 2 + 0.5) * self.height;
                 triPoints[j] = vertex;
-                tri.z += vertex.z; 
+                tri.z += vertex[2]; 
             });
             tri.z /= 3;
         });
@@ -27,13 +27,13 @@ RenderManager = Class.extend({
         var transformedQueue = [];
         for (var i = 0; i < this.queue.length; i++) {
             var tri = this.queue[i];
-            if(tri.points.some(function(p) { return p.w <= 0; })) continue;
+            if(tri.points.some(function(p) { return p[2] > 1; })) continue;
             if(tri.color)
                 ctx.fillStyle = tri.color;
             var path=new Path2D();
-            path.moveTo(tri.points[0].x, tri.points[0].y);
-            path.lineTo(tri.points[1].x, tri.points[1].y);
-            path.lineTo(tri.points[2].x, tri.points[2].y);
+            path.moveTo(tri.points[0][0], tri.points[0][1]);
+            path.lineTo(tri.points[1][0], tri.points[1][1]);
+            path.lineTo(tri.points[2][0], tri.points[2][1]);
             path.closePath();
             this.ctx.strokeStyle = tri.color;
             this.ctx.stroke(path);
