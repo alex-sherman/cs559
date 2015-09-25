@@ -56,8 +56,8 @@ function moveCallback(x, y) {
 initMouseHandling($("#canvas"), moveCallback);
 
 var prev_timestamp = 0;
-var cameraPosition = vec3.fromValues(6, 0, 6);
-var theta = 3 * Math.PI/4;
+var cameraPosition = vec3.fromValues(1.3, 1.3, 0);
+var theta = Math.PI / 2;
 var phi = 0;
 var moveSpeed = 10;
 var cameraSensitivity = 1;
@@ -66,17 +66,23 @@ var mouseSensitivity = 1 / 300;
 var dude = new Entity();
 
 $.ajax({
-    url: "Models/cowboy.g3dj",
+    url: "Models/male.g3dj",
     crossDomain: false,
     dataType: "json"
 }).done(function(data) {
     var mesh = G3DJToMesh(data);
     dude.addComponent(mesh);
     var skeleton = G3DJToSkeleton(data);
-    console.log(skeleton);
     dude.addComponent(skeleton);
+    $.ajax({
+        url: "Models/anim.g3dj",
+        crossDomain: false,
+        dataType: "json"
+    }).done(function(data) {
+        var animation = G3DJToAnimation(data);
+        dude.addComponent(animation);
+    });
 })
-
 var cameraRotation = mat4.create();
 var view = mat4.create();
 var viewProjection = mat4.create();

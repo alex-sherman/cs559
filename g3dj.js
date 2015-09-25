@@ -25,9 +25,10 @@ function G3DJToMesh(obj) {
     var attributes = meshObj.attributes.map(function(attribute) {
         var attributeType = attribute.slice(0);
         var index = 0;
-        if(!isNaN(Number(attribute.charAt( attribute.length-1 )))) {
-            attributeType = attribute.slice(0, -1)
-            index = Number(attribute.charAt( attribute.length-1 ));
+        while(!isNaN(Number(attributeType.charAt( attributeType.length-1 ))))
+        {
+            attributeType = attributeType.slice(0, -1)
+            index = Number(attributeType.charAt( attributeType.length-1 )) + index * 10;
         }
         return [attributeType, index];
     });
@@ -58,20 +59,36 @@ function G3DJToMesh(obj) {
 }
 function G3DJToSkeleton(obj) {
     function objToBone(obj, skeleton, parent) {
-        var invBind = mat4.create();
-        if("translation" in obj)
-            invBind = mat4.translate(invBind, invBind, vec3.fromValues(obj.translation[0],obj.translation[2],obj.translation[1]))
-        mat4.invert(invBind, invBind);
-        var bone = new Bone(obj.id, invBind);
+        var rot = obj.rotation ? quat.fromValues.apply(this, obj.rotation) : quat.create();
+        var tran = obj.translation ? vec3.fromValues.apply(this, obj.translation) : vec3.create();
+        var bone = new Bone(obj.id, parent, rot, tran);
+        if(!parent) quat.rotateX(bone.defRot, bone.defRot, -Math.PI / 2)
         if(obj.children){
             for (var i = 0; i < obj.children.length; i++) {
                 objToBone(obj.children[i], skeleton, bone);
             }
         }
-        skeleton.addBone(bone, parent);
+        skeleton.addBone(bone);
     }
     var skeleton = new Skeleton();
     var nodeObj = obj.nodes[1];
     objToBone(nodeObj, skeleton, null);
     return skeleton;
+}
+function G3DJToAnimation(obj) {
+    var animObj = obj.animations[2];
+    var anim = new Animation();
+    for (var i = 0; i < animObj.bones.length; i++) {
+        var bone = animObj.bones[i];
+        for (var j = 0; j < bone.keyframes.length; j++) {
+            var kf = bone.keyframes[j];
+            anim.addKeyFrame(
+                Math.max(0, kf.keytime) / 1000,
+                bone.boneId,
+                kf.translation ? vec3.fromValues.apply(this, kf.translation) : null,
+                kf.rotation ? quat.fromValues.apply(this, kf.rotation) : null
+                )
+        };
+    };
+    return anim;
 }

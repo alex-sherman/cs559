@@ -1,15 +1,17 @@
 KeyFrame = function(time, bone, translation, rotation) {
     this.time = time;
-    this.translation = translation || vec3.fromValues(0,0,0);
-    this.rotation = rotation || vec3.fromValues(0,0,0);
+    this.translation = translation || null;
+    this.rotation = rotation || null;
     this.bone = bone;
 }
-KeyFrame.lerp = function(time, a, b) {
+KeyFrame.lerp = function(bone, time, a, b) {
     var kf_delta = b.time - a.time;
     var kf_w = kf_delta == 0 ? 0 : (time - a.time) / kf_delta;
-    var rot = Vector.lerp(kf_w, a.rotation, b.rotation);
-    var tran = Vector.lerp(kf_w, a.translation, b.translation);
-    return MatrixCreateTranslationV(tran).mul(Matrix.CreateRotationV(rot));
+    var rot = quat.create();
+    var tran = vec3.create();
+    quat.slerp(rot, a.rotation || bone.defRot, b.rotation || bone.defRot, kf_w);
+    vec3.lerp(tran, a.translation || bone.defTran, b.translation || bone.defTran, kf_w);
+    mat4.fromRotationTranslation(bone.transform, rot, tran);
 }
 
 Animation = Component.extend({
@@ -61,7 +63,7 @@ Animation = Component.extend({
         //Interpolating all keyframes on each bone
         for(var bone_key in bones) {
             var bone = bones[bone_key];
-            bone.transform = KeyFrame.lerp(this.time, bone.prev_kf, bone.next_kf);
+            KeyFrame.lerp(bone, this.time, bone.prev_kf, bone.next_kf);
         }
     }
 });
