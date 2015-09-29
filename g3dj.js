@@ -21,41 +21,50 @@ function G3DJToMesh(obj) {
         TEXCOORD: Vector2,
         BLENDWEIGHT: Blendweight
     };
-    var meshObj = obj.meshes[0];
-    var attributes = meshObj.attributes.map(function(attribute) {
-        var attributeType = attribute.slice(0);
-        var index = 0;
-        while(!isNaN(Number(attributeType.charAt( attributeType.length-1 ))))
-        {
-            attributeType = attributeType.slice(0, -1)
-            index = Number(attributeType.charAt( attributeType.length-1 )) + index * 10;
-        }
-        return [attributeType, index];
-    });
-    var vertices = [];
-    for (var i = 0; i < meshObj.vertices.length;) {
-        var vertex = {};
-        var offset = 0;
-        for (var j = 0; j < attributes.length; j++) {
-            
-            i = attributeTypes[attributes[j][0]](vertex, i, meshObj.vertices, attributes[j][0], attributes[j][1]);
-        };
-        vertices.push(vertex);
-    };
-    var meshIndices = {};
-    for(var i = 0; i < meshObj.parts.length; i++) {
-        meshIndices[meshObj.parts[i].id] = meshObj.parts[i].indices;
-    }
-    var meshParts = [];
-    for (var i = 0; i < obj.nodes[0].parts.length; i++) {
-        var nodePart = obj.nodes[0].parts[i];
-        var meshPartId = nodePart.meshpartid;
-        var bones = nodePart.bones.map(function(bone) {
-            return bone.node;
+    var meshParts = {};
+    for (var m = 0; m < obj.meshes.length; m++) {
+        var meshObj = obj.meshes[m];
+        var attributes = meshObj.attributes.map(function(attribute) {
+            var attributeType = attribute.slice(0);
+            var index = 0;
+            while(!isNaN(Number(attributeType.charAt( attributeType.length-1 ))))
+            {
+                attributeType = attributeType.slice(0, -1)
+                index = Number(attributeType.charAt( attributeType.length-1 )) + index * 10;
+            }
+            return [attributeType, index];
         });
-        meshParts.push(new MeshPart(meshPartId, meshIndices[meshPartId], bones));
-    };
-    return new Mesh(vertices, meshParts);
+        var vertices = [];
+        for (var i = 0; i < meshObj.vertices.length;) {
+            var vertex = {};
+            var offset = 0;
+            for (var j = 0; j < attributes.length; j++) {
+                i = attributeTypes[attributes[j][0]](vertex, i, meshObj.vertices, attributes[j][0], attributes[j][1]);
+            };
+            vertex.positionOut = vec4.create();
+            vertex.normalOut = vec3.create();
+            vertices.push(vertex);
+        };
+        for(var i = 0; i < meshObj.parts.length; i++) {
+            meshParts[meshObj.parts[i].id] = new MeshPart(meshObj.parts[i].id, vertices, meshObj.parts[i].indices);
+        }
+    }
+    for (var j = 0; j < obj.nodes.length; j++) {
+        var objNode = obj.nodes[j];
+        if(!("parts" in objNode)) continue;
+        for (var i = 0; i < objNode.parts.length; i++) {
+            var nodePart = objNode.parts[i];
+            var meshPartId = nodePart.meshpartid;
+            var bones = [];
+            if(("bones" in nodePart)) {
+                bones = nodePart.bones.map(function(bone) {
+                    return bone.node;
+                });
+            }
+            meshParts[meshPartId].bones = bones;
+        }
+    }
+    return new Mesh(meshParts);
 }
 function G3DJToSkeleton(obj) {
     function objToBone(obj, skeleton, parent) {
@@ -71,8 +80,12 @@ function G3DJToSkeleton(obj) {
         skeleton.addBone(bone);
     }
     var skeleton = new Skeleton();
-    var nodeObj = obj.nodes[1];
-    objToBone(nodeObj, skeleton, null);
+    for (var i = 0; i < obj.nodes.length; i++) {
+        if(obj.nodes[i].children){
+            objToBone(obj.nodes[i], skeleton, null);
+            break;
+        }
+    };
     return skeleton;
 }
 function G3DJToAnimation(obj) {

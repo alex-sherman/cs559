@@ -56,10 +56,10 @@ function moveCallback(x, y) {
 initMouseHandling($("#canvas"), moveCallback);
 
 var prev_timestamp = 0;
-var cameraPosition = vec3.fromValues(1.3, 1.3, 0);
-var theta = Math.PI / 2;
+var cameraPosition = vec3.fromValues(1, 1, 1);
+var theta = Math.PI / 4;
 var phi = 0;
-var moveSpeed = 10;
+var moveSpeed = 1;
 var cameraSensitivity = 1;
 var moveDir = vec3.create();
 var mouseSensitivity = 1 / 300;
@@ -88,7 +88,10 @@ var view = mat4.create();
 var viewProjection = mat4.create();
 var cameraLookAt = vec3.create();
 var cameraUp = vec3.create();
+var forward = vec3.fromValues(0, 0, -1);
 var right = vec3.fromValues(1, 0, 0);
+var lightAngle = quat.create();
+var lightDir = vec3.create();
 function loop(timestamp) {
     var delta = 0;
     if (prev_timestamp > 0) delta = (timestamp - prev_timestamp) / 1000;
@@ -113,6 +116,8 @@ function loop(timestamp) {
     theta -= mouseDiff.x * mouseSensitivity;
     phi -= mouseDiff.y * mouseSensitivity;
     if(theta > Math.PI * 2) theta -= Math.PI * 2;
+
+    //Camera matrix calculation
     mat4.rotateX(cameraRotation, cameraRotation, phi);
     vec3.set(cameraLookAt, 0, 0, -1);
     vec3.set(right, 1, 0, 0);
@@ -121,16 +126,15 @@ function loop(timestamp) {
     vec3.cross(cameraUp, right, cameraLookAt);
     vec3.add(cameraLookAt, cameraLookAt, cameraPosition);
     mat4.lookAt(view, cameraPosition, cameraLookAt, cameraUp)
-    //mat4.identity(view);
-    //mat4.rotateX(view, view, phi);
-    //mat4.rotateY(view, view, theta);
-    //vec3.scale(cameraPosition, cameraPosition, -1);
-    //mat4.translate(view, view, cameraPosition);
-    //var view = MatrixCreateView(Math.PI / 2,0, new Vector(-400,0,200));
+
+    //Light direction
+    quat.rotateY(lightAngle, lightAngle, delta);
+    vec3.transformQuat(lightDir, forward, lightAngle);
+
     mat4.mul(viewProjection, projection, view);
     dude.update(delta);
     dude.draw(renderManager);
-    renderManager.draw(viewProjection);
+    renderManager.draw(lightDir, viewProjection);
     prev_timestamp = timestamp;
     mouseDiff = {x: 0, y: 0};
     window.requestAnimationFrame(loop);

@@ -11,14 +11,6 @@ Skeleton = Component.extend({
         for(bone in this.bones) {
             this.bones[bone].update();
         }
-    },
-    draw: function(renderManager) {
-        for(bone in this.bones) {
-            var p = vec4.create();
-            p[3] = 1;
-            vec4.transformMat4(p, p, this.bones[bone]._withParentTransform);
-            renderManager.addTriangle(p, vec4.clone(p), vec4.clone(p), "red");
-        }
     }
 });
 
