@@ -16,6 +16,8 @@
     <script src="primitive.js"></script>
     <script src="mesh.js"></script>
     <script src="renderManager.js"></script>
+    <script src="Models/male.g3dj"></script>
+    <script src="Models/anim.g3dj"></script>
   
 </head>
 <body>
@@ -65,24 +67,30 @@ var moveDir = vec3.create();
 var mouseSensitivity = 1 / 300;
 var dude = new Entity();
 
-$.ajax({
-    url: "Models/male.g3dj",
-    crossDomain: false,
-    dataType: "json"
-}).done(function(data) {
-    var mesh = G3DJToMesh(data);
-    dude.addComponent(mesh);
-    var skeleton = G3DJToSkeleton(data);
-    dude.addComponent(skeleton);
-    $.ajax({
-        url: "Models/anim.g3dj",
-        crossDomain: false,
-        dataType: "json"
-    }).done(function(data) {
-        var animation = G3DJToAnimation(data);
-        dude.addComponent(animation);
-    });
-})
+var mesh = G3DJToMesh(Models.male);
+dude.addComponent(mesh);
+var skeleton = G3DJToSkeleton(Models.male);
+dude.addComponent(skeleton);
+var animation = G3DJToAnimation(Models.anim);
+dude.addComponent(animation);
+//$.ajax({
+//    url: "Models/male.g3dj",
+//    crossDomain: false,
+//    dataType: "json"
+//}).done(function(data) {
+//    var mesh = G3DJToMesh(data);
+//    dude.addComponent(mesh);
+//    var skeleton = G3DJToSkeleton(data);
+//    dude.addComponent(skeleton);
+//    $.ajax({
+//        url: "Models/anim.g3dj",
+//        crossDomain: false,
+//        dataType: "json"
+//    }).done(function(data) {
+//        var animation = G3DJToAnimation(data);
+//        dude.addComponent(animation);
+//    });
+//})
 var cameraRotation = mat4.create();
 var view = mat4.create();
 var viewProjection = mat4.create();
