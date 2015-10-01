@@ -23,6 +23,7 @@
 <body>
     <canvas id="canvas" style="position:absolute;"></canvas>
     <div id="containerDiv" align="center">
+        <div id ="fps"></div>
         <center>
             Use WASD to move the camera's location, and click into the <br>
             canvas or use the arrow keys to change the camera orientation.<br>
@@ -97,12 +98,15 @@ var viewProjection = mat4.create();
 var cameraLookAt = vec3.create();
 var cameraUp = vec3.create();
 var forward = vec3.fromValues(0, 0, -1);
-var right = vec3.fromValues(1, 0, 0);
 var lightAngle = quat.create();
 var lightDir = vec3.create();
+var averageFPS = 0;
 function loop(timestamp) {
     var delta = 0;
     if (prev_timestamp > 0) delta = (timestamp - prev_timestamp) / 1000;
+    if(delta > 0)
+        averageFPS = averageFPS * 0.2 + 1 / delta;
+    $("#fps").text("FPS: " + averageFPS.toString().substr(0, 4));
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     moveDir = vec3.create();
@@ -128,10 +132,9 @@ function loop(timestamp) {
     //Camera matrix calculation
     mat4.rotateX(cameraRotation, cameraRotation, phi);
     vec3.set(cameraLookAt, 0, 0, -1);
-    vec3.set(right, 1, 0, 0);
+    vec3.set(cameraUp, 0, 1, 0);
     vec3.transformMat4(cameraLookAt, cameraLookAt, cameraRotation);
-    vec3.transformMat4(right, right, cameraRotation);
-    vec3.cross(cameraUp, right, cameraLookAt);
+    vec3.transformMat4(cameraUp, cameraUp, cameraRotation);
     vec3.add(cameraLookAt, cameraLookAt, cameraPosition);
     mat4.lookAt(view, cameraPosition, cameraLookAt, cameraUp)
 

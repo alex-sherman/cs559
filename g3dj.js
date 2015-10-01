@@ -1,47 +1,34 @@
 function G3DJToMesh(obj) {
-    function Vector3(vertex, i, vertices, attribute, attributeIndex) {
-        vertex[attribute.toLowerCase()] = vec3.fromValues(vertices[i], vertices[i + 1], vertices[i + 2]);
-        return i + 3;
-    }
-    function Vector2(vertex, i, vertices, attribute, attributeIndex) {
-        vertex[attribute.toLowerCase()] = vec3.fromValues(vertices[i], vertices[i + 1]);
-        return i + 2;
-    }
-    function Blendweight(vertex, i, vertices, attribute, attributeIndex) {
-        if(!("weights" in vertex)) vertex.weights = [];
-        vertex.weights.push({
-            index: vertices[i],
-            weight: vertices[i + 1],
-        });
-        return i + 2;
-    }
     var attributeTypes = {
-        POSITION: Vector3,
-        NORMAL: Vector3,
-        TEXCOORD: Vector2,
-        BLENDWEIGHT: Blendweight
+        POSITION: 3,
+        NORMAL: 3,
+        TEXCOORD: 2,
+        BLENDWEIGHT: 2
     };
     var meshParts = {};
     for (var m = 0; m < obj.meshes.length; m++) {
         var meshObj = obj.meshes[m];
         var attributes = meshObj.attributes.map(function(attribute) {
-            var attributeType = attribute.slice(0);
-            var index = 0;
-            while(!isNaN(Number(attributeType.charAt( attributeType.length-1 ))))
-            {
-                attributeType = attributeType.slice(0, -1)
-                index = Number(attributeType.charAt( attributeType.length-1 )) + index * 10;
-            }
-            return [attributeType, index];
+            //Regex is courtesy of Peter Den Hartog
+            var re = /^(\w+?)(\d*)$/;
+            var m = re.exec(attribute);
+            var index = parseInt(m[2]);
+            index = (isNaN(index) ? 0 : index);
+            return {name: m[1], index: isNaN(index) ? 0 : index};
         });
         var vertices = [];
         for (var i = 0; i < meshObj.vertices.length;) {
             var vertex = {};
             var offset = 0;
             for (var j = 0; j < attributes.length; j++) {
-                i = attributeTypes[attributes[j][0]](vertex, i, meshObj.vertices, attributes[j][0], attributes[j][1]);
+                var attr = attributes[j];
+                if(!vertex[attr.name])
+                    vertex[attr.name] = [];
+                vertex[attr.name][attr.index] = meshObj.vertices.slice(i, i + attributeTypes[attr.name]);
+                i += attributeTypes[attr.name];
             };
-            vertex.positionOut = vec4.create();
+            vertex.worldPosition = vec4.create();
+            vertex.viewPosition = vec4.create();
             vertex.normalOut = vec3.create();
             vertices.push(vertex);
         };

@@ -12,7 +12,7 @@ RenderManager = Class.extend({
         vec3.add(normal, normal, P3.normalOut);
         vec3.scale(normal, normal, 1/3);
         this.queue.push({
-            points: [P1.positionOut, P2.positionOut, P3.positionOut],
+            points: [P1, P2, P3],
             normal: normal
         });
     },
@@ -23,8 +23,8 @@ RenderManager = Class.extend({
         }
         return output;
     },
-    transformVector: function(v, m) {
-        v = vec4.transformMat4(v, v, m);
+    transformVector: function(vout, vin, m) {
+        v = vec4.transformMat4(vout, vin, m);
         if(v[3] != 0)
             vec4.scale(v, v, 1 / v[3]);
         v[0] = (v[0] / 2 + 0.5) * this.width;
@@ -32,13 +32,13 @@ RenderManager = Class.extend({
     },
     draw: function(lightDir, viewProjection) {
         var lightDebug = vec4.fromValues(0,0,0,1);
-        this.transformVector(lightDebug, viewProjection);
+        this.transformVector(lightDebug, lightDebug, viewProjection);
         this.ctx.strokeStyle = "green";
         this.ctx.beginPath();
         this.ctx.moveTo(lightDebug[0], lightDebug[1]);
         vec4.set(lightDebug, 0,0,0,1);
         vec3.add(lightDebug, lightDebug, lightDir);
-        this.transformVector(lightDebug, viewProjection);
+        this.transformVector(lightDebug, lightDebug, viewProjection);
         this.ctx.lineTo(lightDebug[0], lightDebug[1]);
         this.ctx.stroke();
 
@@ -47,10 +47,8 @@ RenderManager = Class.extend({
         this.queue.map(function(tri, i, q) {
             tri.z = 0;
             tri.points.map(function(vertex, j, triPoints) {
-                //Important clone, the vertex may be shared from the original triangle
-                triPoints[j] = vec4.clone(vertex);
-                self.transformVector(triPoints[j], viewProjection);
-                tri.z += triPoints[j][2];
+                self.transformVector(triPoints[j].viewPosition, triPoints[j].worldPosition, viewProjection);
+                tri.z += triPoints[j].viewPosition[2];
             });
             tri.z /= 3;
         });
@@ -58,20 +56,22 @@ RenderManager = Class.extend({
             return b.z - a.z;
         });
         var transformedQueue = [];
+        var ambientLight = 0.1
         for (var i = 0; i < this.queue.length; i++) {
             var tri = this.queue[i];
             if(tri.points.some(function(p) { return p[2] >= 1; })) continue;
 
-            var color = vec3.fromValues(0, 1, 0);
-            vec3.scale(color, color, Math.max(0, vec3.dot(lightDir, tri.normal)));
+            var color = vec3.create();
+
+            vec3.add(color, [ambientLight, ambientLight, ambientLight], vec3.scale(color, [0,1,0], Math.max(ambientLight, vec3.dot(lightDir, tri.normal) - ambientLight)));
             color = this.colorFromVec3(color);
             this.ctx.fillStyle = color;
             var path=new Path2D();
-            path.moveTo(tri.points[0][0], tri.points[0][1]);
-            path.lineTo(tri.points[1][0], tri.points[1][1]);
-            path.lineTo(tri.points[2][0], tri.points[2][1]);
+            path.moveTo(tri.points[0].viewPosition[0], tri.points[0].viewPosition[1]);
+            path.lineTo(tri.points[1].viewPosition[0], tri.points[1].viewPosition[1]);
+            path.lineTo(tri.points[2].viewPosition[0], tri.points[2].viewPosition[1]);
             path.closePath();
-            this.ctx.strokeStyle = color;
+            this.ctx.strokeStyle = "green";
             this.ctx.stroke(path);
             this.ctx.fill(path);
 
