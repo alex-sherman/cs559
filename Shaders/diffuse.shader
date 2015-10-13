@@ -23,13 +23,13 @@ void main()\
     fragment: "\
 precision highp float;\
 uniform float time;\
-uniform vec2 resolution;\
+uniform vec3 lightDir;\
 varying vec3 fPosition;\
 varying vec3 fNormal;\
 \
 void main()\
 {\
-  gl_FragColor = vec4(fNormal, 1.0);\
+  gl_FragColor = vec4(vec3(1) * dot(lightDir, fNormal), 1.0);\
 }\
 "
 }

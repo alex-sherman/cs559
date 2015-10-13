@@ -39,5 +39,8 @@ RenderManager = Class.extend({
         this.viewProjection = viewProjection;
         var uniformLocation = gl.getUniformLocation(glProgram, "projectionMatrix");
         gl.uniformMatrix4fv(uniformLocation, false, viewProjection);
+
+        uniformLocation = gl.getUniformLocation(glProgram, "lightDir");
+        gl.uniform3fv(uniformLocation, lightDir);
     }
 });
