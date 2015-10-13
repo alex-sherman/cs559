@@ -18,6 +18,7 @@
     <script src="renderManager.js"></script>
     <script src="Models/male.g3dj"></script>
     <script src="Models/anim.g3dj"></script>
+    <script src="Shaders/diffuse.shader"></script>
   
 </head>
 <body>
@@ -35,17 +36,43 @@
 
 
 <script type='text/javascript'>//<![CDATA[
-
 var canvas = document.getElementById("canvas");
-var ctx = canvas.getContext('2d');
+var gl = canvas.getContext("experimental-webgl");
+
+gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
+gl.clearDepth(1.0);                 // Clear everything
+gl.enable(gl.DEPTH_TEST);           // Enable depth testing
+gl.depthFunc(gl.LEQUAL);            // Near things obscure far things
+
+var glProgram = gl.createProgram();
+for(var shaderName in Shaders) {
+    var shader = Shaders[shaderName];
+    if(shader.vertex) {
+        glShader = gl.createShader(gl.VERTEX_SHADER);
+        gl.shaderSource(glShader, shader.vertex);
+        gl.compileShader(glShader);
+        shader.vertex = glShader;
+        gl.attachShader(glProgram, glShader);
+    }
+    if(shader.fragment) {
+        glShader = gl.createShader(gl.FRAGMENT_SHADER);
+        gl.shaderSource(glShader, shader.fragment);
+        gl.compileShader(glShader);
+        shader.fragment = glShader;
+        gl.attachShader(glProgram, glShader);
+    }
+}
+gl.linkProgram(glProgram);
+gl.useProgram(glProgram);
 var projection = mat4.create();
-var renderManager = new RenderManager(ctx, canvas.width, canvas.height);
+var renderManager = new RenderManager(canvas, canvas.width, canvas.height);
 function resizeCallback() {
     canvas.width = document.documentElement.clientWidth - 10;
     canvas.height = document.documentElement.clientHeight - 10;
     renderManager.width = canvas.width;
     renderManager.height = canvas.height;
     projection = mat4.perspective(projection, Math.PI/2, canvas.width / canvas.height, 1, 100);
+    gl.viewport(0, 0, canvas.width, canvas.height);
 }
 resizeCallback();
 $(window).resize(function() {
@@ -74,24 +101,7 @@ var skeleton = G3DJToSkeleton(Models.male);
 dude.addComponent(skeleton);
 var animation = G3DJToAnimation(Models.anim);
 dude.addComponent(animation);
-//$.ajax({
-//    url: "Models/male.g3dj",
-//    crossDomain: false,
-//    dataType: "json"
-//}).done(function(data) {
-//    var mesh = G3DJToMesh(data);
-//    dude.addComponent(mesh);
-//    var skeleton = G3DJToSkeleton(data);
-//    dude.addComponent(skeleton);
-//    $.ajax({
-//        url: "Models/anim.g3dj",
-//        crossDomain: false,
-//        dataType: "json"
-//    }).done(function(data) {
-//        var animation = G3DJToAnimation(data);
-//        dude.addComponent(animation);
-//    });
-//})
+
 var cameraRotation = mat4.create();
 var view = mat4.create();
 var viewProjection = mat4.create();
@@ -107,7 +117,6 @@ function loop(timestamp) {
     if(delta > 0)
         averageFPS = averageFPS * 0.2 + 1 / delta;
     $("#fps").text("FPS: " + averageFPS.toString().substr(0, 4));
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     moveDir = vec3.create();
     if(keyboardState[87]) moveDir[2] -= 1;
@@ -115,7 +124,7 @@ function loop(timestamp) {
     if(keyboardState[68]) moveDir[0] += 1;
     if(keyboardState[65]) moveDir[0] -= 1;
     if(keyboardState[32]) moveDir[1] += 1;
-    if(keyboardState[17]) moveDir[1] -= 1;
+    if(keyboardState[67]) moveDir[1] -= 1;
     if(keyboardState[38]) phi -= cameraSensitivity * delta;
     if(keyboardState[40]) phi += cameraSensitivity * delta;
     if(keyboardState[37]) theta += cameraSensitivity * delta;
@@ -144,8 +153,8 @@ function loop(timestamp) {
 
     mat4.mul(viewProjection, projection, view);
     dude.update(delta);
+    renderManager.beginDraw(lightDir, viewProjection);
     dude.draw(renderManager);
-    renderManager.draw(lightDir, viewProjection);
     prev_timestamp = timestamp;
     mouseDiff = {x: 0, y: 0};
     window.requestAnimationFrame(loop);

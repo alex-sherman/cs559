@@ -1,39 +1,50 @@
+
+var G3DJAttributeTypes = {
+    POSITION: 3,
+    NORMAL: 3,
+    TEXCOORD: 2,
+    BLENDWEIGHT: 2
+};
+
+function G3DJAttrType(attrName) {
+    //Regex is courtesy of Peter Den Hartog
+    var re = /^(\w+?)(\d*)$/;
+    var m = re.exec(attrName);
+    var index = parseInt(m[2]);
+    index = (isNaN(index) ? 0 : index);
+    return {name: attrName, size: G3DJAttributeTypes[m[1]]};
+}
+
 function G3DJToMesh(obj) {
-    var attributeTypes = {
-        POSITION: 3,
-        NORMAL: 3,
-        TEXCOORD: 2,
-        BLENDWEIGHT: 2
-    };
     var meshParts = {};
     for (var m = 0; m < obj.meshes.length; m++) {
         var meshObj = obj.meshes[m];
-        var attributes = meshObj.attributes.map(function(attribute) {
-            //Regex is courtesy of Peter Den Hartog
-            var re = /^(\w+?)(\d*)$/;
-            var m = re.exec(attribute);
-            var index = parseInt(m[2]);
-            index = (isNaN(index) ? 0 : index);
-            return {name: m[1], index: isNaN(index) ? 0 : index};
-        });
-        var vertices = [];
+        var attributes = meshObj.attributes.map(G3DJAttrType);
+        var vertices = attributes.reduce(function(obj, attribute) {
+            obj[attribute.name] = [];
+            return obj;
+        }, {});
         for (var i = 0; i < meshObj.vertices.length;) {
-            var vertex = {};
             var offset = 0;
             for (var j = 0; j < attributes.length; j++) {
                 var attr = attributes[j];
-                if(!vertex[attr.name])
-                    vertex[attr.name] = [];
-                vertex[attr.name][attr.index] = meshObj.vertices.slice(i, i + attributeTypes[attr.name]);
-                i += attributeTypes[attr.name];
+                for(var k = 0; k < attr.size; k++)
+                    vertices[attr.name].push(meshObj.vertices[i + k]);
+                i += attr.size;
             };
-            vertex.worldPosition = vec4.create();
-            vertex.viewPosition = vec4.create();
-            vertex.normalOut = vec3.create();
-            vertices.push(vertex);
         };
+        for(var attrName in vertices) {
+            var values = vertices[attrName];
+            vertices[attrName] = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, vertices[attrName]);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(values), gl.STATIC_DRAW);
+        }
         for(var i = 0; i < meshObj.parts.length; i++) {
-            meshParts[meshObj.parts[i].id] = new MeshPart(meshObj.parts[i].id, vertices, meshObj.parts[i].indices);
+            var indices = gl.createBuffer();
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indices);
+            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,
+              new Uint16Array(meshObj.parts[i].indices), gl.STATIC_DRAW);
+            meshParts[meshObj.parts[i].id] = new MeshPart(meshObj.parts[i].id, vertices, indices, meshObj.parts[i].indices.length);
         }
     }
     for (var j = 0; j < obj.nodes.length; j++) {

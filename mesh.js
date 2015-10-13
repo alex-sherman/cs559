@@ -10,11 +10,12 @@ Mesh = Component.extend({
 });
     
 MeshPart = Class.extend({
-    init: (function MeshPart(id, vertices, indices) {
+    init: (function MeshPart(id, vertices, indices, count) {
         this.id = id;
         this.vertices = vertices;
         this.indices = indices;
         this.bones = [];
+        this.count = count;
     }),
     transformVertex: function(vertex, skeleton) {
         var v = vertex.worldPosition;
@@ -46,17 +47,6 @@ MeshPart = Class.extend({
         }
     },
     draw: function(renderManager, skeleton) {
-        var transformedVertices = []
-        for (var i = 0; i < this.vertices.length; i++) {
-            this.transformVertex(this.vertices[i], skeleton);
-        };
-        
-        for (var i = 0; i < this.indices.length; i+= 3) {
-            renderManager.addTriangle(
-                this.vertices[this.indices[i]],
-                this.vertices[this.indices[i + 1]],
-                this.vertices[this.indices[i + 2]]
-                );
-        };
+        renderManager.drawMeshPart(this);
     }
 });
