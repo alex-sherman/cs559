@@ -6,15 +6,25 @@ RenderManager = Class.extend({
         this.lightDir = null;
         this.viewProjection = null;
     }),
-    drawMeshPart: function(meshPart) {
-        for(var attribName in meshPart.vertices) {
+    drawMeshPart: function(meshPart, bones) {
+        for(var i = 0; i < meshPart.bones.length; i++){
+            var uniformLocation = gl.getUniformLocation(glProgram, "boneTransforms[" + i + "]");
+            gl.uniformMatrix4fv(uniformLocation, false, bones[meshPart.bones[i]].currentTransform);
+        }
+
+        var stride = meshPart.vertices.attributes.reduce(function(stride, attr) { return stride + attr.size; }, 0);
+        var offset = 0;
+        for(var i = 0; i < meshPart.vertices.attributes.length; i++) {
+            var attr = meshPart.vertices.attributes[i];
+            var attribName = attr.name;
 
             var attribLocation = gl.getAttribLocation(glProgram, attribName);
             if(attribLocation == -1) continue;
             gl.enableVertexAttribArray(attribLocation);
 
-            gl.bindBuffer(gl.ARRAY_BUFFER, meshPart.vertices[attribName]);
-            gl.vertexAttribPointer(attribLocation, G3DJAttrType(attribName).size, gl.FLOAT, false, 0, 0);
+            gl.bindBuffer(gl.ARRAY_BUFFER, meshPart.vertices.buffer);
+            gl.vertexAttribPointer(attribLocation, attr.size, gl.FLOAT, false, stride * 4, offset * 4);
+            offset += attr.size;
         }
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, meshPart.indices);

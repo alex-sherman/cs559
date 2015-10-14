@@ -71,7 +71,7 @@ function resizeCallback() {
     canvas.height = document.documentElement.clientHeight - 10;
     renderManager.width = canvas.width;
     renderManager.height = canvas.height;
-    projection = mat4.perspective(projection, Math.PI/2, canvas.width / canvas.height, 1, 100);
+    projection = mat4.perspective(projection, Math.PI/2, canvas.width / canvas.height, 0.1, 100);
     gl.viewport(0, 0, canvas.width, canvas.height);
 }
 resizeCallback();

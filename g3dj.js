@@ -24,21 +24,14 @@ function G3DJToMesh(obj) {
             obj[attribute.name] = [];
             return obj;
         }, {});
-        for (var i = 0; i < meshObj.vertices.length;) {
-            var offset = 0;
-            for (var j = 0; j < attributes.length; j++) {
-                var attr = attributes[j];
-                for(var k = 0; k < attr.size; k++)
-                    vertices[attr.name].push(meshObj.vertices[i + k]);
-                i += attr.size;
-            };
-        };
-        for(var attrName in vertices) {
-            var values = vertices[attrName];
-            vertices[attrName] = gl.createBuffer();
-            gl.bindBuffer(gl.ARRAY_BUFFER, vertices[attrName]);
-            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(values), gl.STATIC_DRAW);
+
+        vertices = {
+            attributes: attributes,
+            buffer: gl.createBuffer()
         }
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertices.buffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(meshObj.vertices), gl.STATIC_DRAW);
+
         for(var i = 0; i < meshObj.parts.length; i++) {
             var indices = gl.createBuffer();
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indices);
