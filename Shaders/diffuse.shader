@@ -19,6 +19,7 @@ attribute vec2 BLENDWEIGHT10;\
 attribute vec2 BLENDWEIGHT11;\
 attribute vec2 BLENDWEIGHT12;\
 uniform mat4 boneTransforms[64];\
+uniform mat3 boneTransformsN[64];\
 uniform mat3 normalMatrix;\
 uniform mat4 viewMatrix;\
 uniform mat4 projectionMatrix;\
@@ -28,20 +29,38 @@ varying vec3 color;\
 \
 void main()\
 {\
-  fNormal = NORMAL;\
-  vec4 transformedPos = vec4(0);\
-  transformedPos += (boneTransforms[int(BLENDWEIGHT0.x)] * vec4(POSITION, 1)) * BLENDWEIGHT0.y;\
-  transformedPos += (boneTransforms[int(BLENDWEIGHT1.x)] * vec4(POSITION, 1)) * BLENDWEIGHT1.y;\
-  transformedPos += (boneTransforms[int(BLENDWEIGHT2.x)] * vec4(POSITION, 1)) * BLENDWEIGHT2.y;\
-  transformedPos += (boneTransforms[int(BLENDWEIGHT3.x)] * vec4(POSITION, 1)) * BLENDWEIGHT3.y;\
-  transformedPos += (boneTransforms[int(BLENDWEIGHT4.x)] * vec4(POSITION, 1)) * BLENDWEIGHT4.y;\
-  transformedPos += (boneTransforms[int(BLENDWEIGHT5.x)] * vec4(POSITION, 1)) * BLENDWEIGHT5.y;\
-  transformedPos += (boneTransforms[int(BLENDWEIGHT6.x)] * vec4(POSITION, 1)) * BLENDWEIGHT6.y;\
-  transformedPos += (boneTransforms[int(BLENDWEIGHT7.x)] * vec4(POSITION, 1)) * BLENDWEIGHT7.y;\
-  transformedPos += (boneTransforms[int(BLENDWEIGHT8.x)] * vec4(POSITION, 1)) * BLENDWEIGHT8.y;\
-  transformedPos += (boneTransforms[int(BLENDWEIGHT9.x)] * vec4(POSITION, 1)) * BLENDWEIGHT9.y;\
-  gl_Position =  projectionMatrix * transformedPos;\
-  color = vec3((BLENDWEIGHT0.y + BLENDWEIGHT1.y + BLENDWEIGHT2.y + BLENDWEIGHT3.y) - 1.9,0,0);\
+  mat4 boneTransform;\
+  mat3 normalTransform;\
+  boneTransform += (boneTransforms[int(BLENDWEIGHT0.x)] * BLENDWEIGHT0.y);\
+  boneTransform += (boneTransforms[int(BLENDWEIGHT1.x)] * BLENDWEIGHT1.y);\
+  boneTransform += (boneTransforms[int(BLENDWEIGHT2.x)] * BLENDWEIGHT2.y);\
+  boneTransform += (boneTransforms[int(BLENDWEIGHT3.x)] * BLENDWEIGHT3.y);\
+  boneTransform += (boneTransforms[int(BLENDWEIGHT4.x)] * BLENDWEIGHT4.y);\
+  boneTransform += (boneTransforms[int(BLENDWEIGHT5.x)] * BLENDWEIGHT5.y);\
+  boneTransform += (boneTransforms[int(BLENDWEIGHT6.x)] * BLENDWEIGHT6.y);\
+  boneTransform += (boneTransforms[int(BLENDWEIGHT7.x)] * BLENDWEIGHT7.y);\
+  boneTransform += (boneTransforms[int(BLENDWEIGHT8.x)] * BLENDWEIGHT8.y);\
+  boneTransform += (boneTransforms[int(BLENDWEIGHT9.x)] * BLENDWEIGHT9.y);\
+  boneTransform += (boneTransforms[int(BLENDWEIGHT10.x)] * BLENDWEIGHT10.y);\
+  boneTransform += (boneTransforms[int(BLENDWEIGHT11.x)] * BLENDWEIGHT11.y);\
+  boneTransform += (boneTransforms[int(BLENDWEIGHT12.x)] * BLENDWEIGHT12.y);\
+\
+  normalTransform += (boneTransformsN[int(BLENDWEIGHT0.x)] * BLENDWEIGHT0.y);\
+  normalTransform += (boneTransformsN[int(BLENDWEIGHT1.x)] * BLENDWEIGHT1.y);\
+  normalTransform += (boneTransformsN[int(BLENDWEIGHT2.x)] * BLENDWEIGHT2.y);\
+  normalTransform += (boneTransformsN[int(BLENDWEIGHT3.x)] * BLENDWEIGHT3.y);\
+  normalTransform += (boneTransformsN[int(BLENDWEIGHT4.x)] * BLENDWEIGHT4.y);\
+  normalTransform += (boneTransformsN[int(BLENDWEIGHT5.x)] * BLENDWEIGHT5.y);\
+  normalTransform += (boneTransformsN[int(BLENDWEIGHT6.x)] * BLENDWEIGHT6.y);\
+  normalTransform += (boneTransformsN[int(BLENDWEIGHT7.x)] * BLENDWEIGHT7.y);\
+  normalTransform += (boneTransformsN[int(BLENDWEIGHT8.x)] * BLENDWEIGHT8.y);\
+  normalTransform += (boneTransformsN[int(BLENDWEIGHT9.x)] * BLENDWEIGHT9.y);\
+  normalTransform += (boneTransformsN[int(BLENDWEIGHT10.x)] * BLENDWEIGHT10.y);\
+  normalTransform += (boneTransformsN[int(BLENDWEIGHT11.x)] * BLENDWEIGHT11.y);\
+  normalTransform += (boneTransformsN[int(BLENDWEIGHT12.x)] * BLENDWEIGHT12.y);\
+  gl_Position =  projectionMatrix * boneTransform * vec4(POSITION, 1);\
+  fNormal = normalMatrix * normalTransform * NORMAL;\
+  color = vec3(0,1,0);\
 }\
 ",
     fragment: "\
@@ -53,7 +72,7 @@ varying vec3 color;\
 \
 void main()\
 {\
-  gl_FragColor = vec4(color, 1.0);\
+  gl_FragColor = vec4(color * dot(lightDir, fNormal), 1.0);\
 }\
 "
 }

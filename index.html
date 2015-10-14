@@ -151,9 +151,8 @@ function loop(timestamp) {
     quat.rotateY(lightAngle, lightAngle, delta);
     vec3.transformQuat(lightDir, forward, lightAngle);
 
-    mat4.mul(viewProjection, projection, view);
     dude.update(delta);
-    renderManager.beginDraw(lightDir, viewProjection);
+    renderManager.beginDraw(lightDir, view, projection);
     dude.draw(renderManager);
     prev_timestamp = timestamp;
     mouseDiff = {x: 0, y: 0};
