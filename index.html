@@ -152,7 +152,7 @@ function loop(timestamp) {
     vec3.transformQuat(lightDir, forward, lightAngle);
 
     dude.update(delta);
-    renderManager.beginDraw(lightDir, view, projection);
+    renderManager.beginDraw(timestamp / 1000.0, lightDir, view, projection);
     dude.draw(renderManager);
     prev_timestamp = timestamp;
     mouseDiff = {x: 0, y: 0};

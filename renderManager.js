@@ -49,13 +49,16 @@ RenderManager = Class.extend({
         v[0] = (v[0] / 2 + 0.5) * this.width;
         v[1] = (-v[1] / 2 + 0.5) * this.height;
     },
-    beginDraw: function(lightDir, view, projection) {
+    beginDraw: function(time, lightDir, view, projection) {
         mat3.fromMat4(this.normalMatrix, view);
         mat3.invert(this.normalMatrix, this.normalMatrix);
         mat3.transpose(this.normalMatrix, this.normalMatrix);
         mat4.mul(this.viewProjection, projection, view);
         this.lightDir = lightDir;
-        var uniformLocation = gl.getUniformLocation(glProgram, "projectionMatrix");
+        var uniformLocation = gl.getUniformLocation(glProgram, "time");
+        gl.uniform1f(uniformLocation, time);
+
+        uniformLocation = gl.getUniformLocation(glProgram, "projectionMatrix");
         gl.uniformMatrix4fv(uniformLocation, false, this.viewProjection);
 
         uniformLocation = gl.getUniformLocation(glProgram, "normalMatrix");
