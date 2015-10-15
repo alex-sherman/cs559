@@ -5,6 +5,7 @@ Shaders.diffuse = {
 precision highp float;\
 attribute vec3 POSITION;\
 attribute vec3 NORMAL;\
+attribute vec2 TEXCOORD0;\
 attribute vec2 BLENDWEIGHT0;\
 attribute vec2 BLENDWEIGHT1;\
 attribute vec2 BLENDWEIGHT2;\
@@ -26,7 +27,7 @@ uniform mat4 projectionMatrix;\
 uniform mat4 worldMatrix;\
 uniform float time;\
 varying vec3 fNormal;\
-varying vec3 color;\
+varying vec2 fTexCoord;\
 \
 void main()\
 {\
@@ -61,7 +62,7 @@ void main()\
   normalTransform += (boneTransformsN[int(BLENDWEIGHT12.x)] * BLENDWEIGHT12.y);\
   fNormal = normalMatrix * normalTransform * NORMAL;\
   gl_Position =  projectionMatrix * boneTransform * vec4(POSITION, 1);\
-  color = vec3(0,1,0);\
+  fTexCoord = TEXCOORD0;\
 }\
 ",
     fragment: "\
@@ -69,18 +70,17 @@ precision highp float;\
 uniform float time;\
 uniform vec3 lightDir;\
 varying vec3 fNormal;\
-varying vec3 color;\
+varying vec2 fTexCoord;\
+uniform sampler2D diffuse;\
 \
 void main()\
 {\
   float base = 0.4;\
-  float rotSpeed = 1.0;\
+  float rotSpeed = 5.0;\
   float tripScale = 0.5;\
   vec3 normal = normalize(fNormal);\
-  gl_FragColor = vec4(vec3(base) * dot(normal, vec3(0,0,1)), 1.0);\
-  gl_FragColor.x += clamp(dot(normal, vec3(cos(time * rotSpeed),0,sin(time * rotSpeed))), 0.0, 1.0) * tripScale;\
-  gl_FragColor.y += clamp(dot(normal, vec3(cos(time * rotSpeed + 4.0),0,sin(time * rotSpeed + 4.0))), 0.0, 1.0) * tripScale;\
-  gl_FragColor.z += clamp(dot(normal, vec3(cos(time * rotSpeed + 8.0),0,sin(time * rotSpeed + 8.0))), 0.0, 1.0) * tripScale;\
+  gl_FragColor = texture2D(diffuse, vec2(fTexCoord.x, fTexCoord.y));\
+  gl_FragColor.xyz *= base * dot(normal, vec3(0,0,1)) + clamp(dot(normal, vec3(cos(time * rotSpeed),0,sin(time * rotSpeed))), 0.0, 1.0 - base);\
 }\
 "
 }

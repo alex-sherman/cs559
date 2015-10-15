@@ -7,6 +7,24 @@ RenderManager = Class.extend({
         this.viewProjection = mat4.create();
         this.normalMatrix = mat3.create();
     }),
+    createTexture: function(image) {
+        texture = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+        gl.generateMipmap(gl.TEXTURE_2D);
+        return texture;
+    },
+    setTextures: function(textures) {
+        var i = 0;
+        for(var textureName in textures) {
+            gl.bindTexture(gl.TEXTURE_2D, null);
+            gl.activeTexture(gl.TEXTURE0 + i);
+            gl.bindTexture(gl.TEXTURE_2D, textures[textureName]);
+            gl.uniform1i(gl.getUniformLocation(glProgram, textureName), i);
+        }
+    },
     drawMeshPart: function(meshPart, bones) {
         var tmp = mat3.create();
         for(var i = 0; i < meshPart.bones.length; i++){
@@ -34,20 +52,6 @@ RenderManager = Class.extend({
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, meshPart.indices);
         gl.drawElements(gl.TRIANGLES, meshPart.count, gl.UNSIGNED_SHORT, 0);
-    },
-    colorFromVec3: function(v) {
-        var output = "#"
-        for(var i = 0; i < 3; i++){
-            output += ("0" + Math.floor(v[i] * 255).toString(16)).substr(-2);
-        }
-        return output;
-    },
-    transformVector: function(vout, vin, m) {
-        v = vec4.transformMat4(vout, vin, m);
-        if(v[3] != 0)
-            vec4.scale(v, v, 1 / v[3]);
-        v[0] = (v[0] / 2 + 0.5) * this.width;
-        v[1] = (-v[1] / 2 + 0.5) * this.height;
     },
     beginDraw: function(time, lightDir, view, projection) {
         mat3.fromMat4(this.normalMatrix, view);

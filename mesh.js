@@ -1,8 +1,10 @@
 Mesh = Component.extend({
     init: (function Mesh(meshParts) {
         this.parts = meshParts || {};
+        this.textures = {};
     }),
     draw: function(renderManager) {
+        renderManager.setTextures(this.textures);
         for (meshPartId in this.parts) {
             this.parts[meshPartId].draw(renderManager, this.entity.Skeleton.bones);
         };
