@@ -36,18 +36,8 @@ Animation = Component.extend({
     update: function(dt) { 
         this.time += dt * this.speed;
         var bones = this.entity.Skeleton.bones;
-        if(this.time > this.length)
-        {
-            for(var bone_key in bones) {
-                var bone = bones[bone_key];
-                bone.prev_kf = new KeyFrame(0, bone_key);
-                bone.next_kf = new KeyFrame(0, bone_key);
-            }
-            this.time = 0;
-            this.currentIndex = 0;
-        }
         //Updating keyframes we pass
-        for (; this.currentIndex < this.keyFrames.length && this.keyFrames[this.currentIndex].time <= this.time; this.currentIndex ++) {
+        for (; this.keyFrames[this.currentIndex].time <= this.time; this.currentIndex ++) {
             var keyframe = this.keyFrames[this.currentIndex];
             var bone = bones[keyframe.bone];
             bone.prev_kf = keyframe;
@@ -57,6 +47,10 @@ Animation = Component.extend({
                     bone.next_kf = this.keyFrames[i];
                     break;
                 }
+            }
+            if(this.currentIndex == this.keyFrames.length - 1) {
+                this.time %= this.length;
+                this.currentIndex = -1;
             }
         };
 
