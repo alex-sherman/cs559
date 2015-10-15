@@ -24,6 +24,7 @@ uniform mat3 normalMatrix;\
 uniform mat4 viewMatrix;\
 uniform mat4 projectionMatrix;\
 uniform mat4 worldMatrix;\
+uniform float time;\
 varying vec3 fNormal;\
 varying vec3 color;\
 \
@@ -58,8 +59,8 @@ void main()\
   normalTransform += (boneTransformsN[int(BLENDWEIGHT10.x)] * BLENDWEIGHT10.y);\
   normalTransform += (boneTransformsN[int(BLENDWEIGHT11.x)] * BLENDWEIGHT11.y);\
   normalTransform += (boneTransformsN[int(BLENDWEIGHT12.x)] * BLENDWEIGHT12.y);\
-  gl_Position =  projectionMatrix * boneTransform * vec4(POSITION, 1);\
   fNormal = normalMatrix * normalTransform * NORMAL;\
+  gl_Position =  projectionMatrix * boneTransform * vec4(POSITION, 1);\
   color = vec3(0,1,0);\
 }\
 ",
@@ -72,7 +73,14 @@ varying vec3 color;\
 \
 void main()\
 {\
-  gl_FragColor = vec4(color * dot(lightDir, fNormal), 1.0);\
+  float base = 0.4;\
+  float rotSpeed = 1.0;\
+  float tripScale = 0.5;\
+  vec3 normal = normalize(fNormal);\
+  gl_FragColor = vec4(vec3(base) * dot(normal, vec3(0,0,1)), 1.0);\
+  gl_FragColor.x += clamp(dot(normal, vec3(cos(time * rotSpeed),0,sin(time * rotSpeed))), 0.0, 1.0) * tripScale;\
+  gl_FragColor.y += clamp(dot(normal, vec3(cos(time * rotSpeed + 4.0),0,sin(time * rotSpeed + 4.0))), 0.0, 1.0) * tripScale;\
+  gl_FragColor.z += clamp(dot(normal, vec3(cos(time * rotSpeed + 8.0),0,sin(time * rotSpeed + 8.0))), 0.0, 1.0) * tripScale;\
 }\
 "
 }
