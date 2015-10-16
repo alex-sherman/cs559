@@ -22,25 +22,57 @@ RenderManager = Class.extend({
             gl.bindTexture(gl.TEXTURE_2D, null);
             gl.activeTexture(gl.TEXTURE0 + i);
             gl.bindTexture(gl.TEXTURE_2D, textures[textureName]);
-            gl.uniform1i(gl.getUniformLocation(glProgram, textureName), i);
+            gl.uniform1i(gl.getUniformLocation(this.shader, textureName), i);
         }
     },
-    drawMeshPart: function(meshPart, bones) {
-        var tmp = mat3.create();
-        for(var i = 0; i < meshPart.bones.length; i++){
-            var uniformLocation = gl.getUniformLocation(glProgram, "boneTransforms[" + i + "]");
-            gl.uniformMatrix4fv(uniformLocation, false, bones[meshPart.bones[i]].currentTransform);
-            var uniformLocation = gl.getUniformLocation(glProgram, "boneTransformsN[" + i + "]");
-            gl.uniformMatrix3fv(uniformLocation, false, mat3.fromMat4(tmp, bones[meshPart.bones[i]].currentTransformN));
+    setShader: function(shader) {
+        this.shader = shader;
+        gl.useProgram(shader);
+    },
+    setUniforms: function(uniforms) {
+        for(var uniformName in uniforms) {
+            this.setUniform(uniformName, uniforms[uniformName]);
         }
-
+    },
+    setUniform: function(name, value) {
+        if(value.constructor === Array) {
+            for(var i = 0; i < value.length; i++) {
+                this.setUniform(name + "[" + i + "]", value[i]);
+            }
+        }
+        else {
+            var uniformLocation = gl.getUniformLocation(this.shader, name);
+            if(uniformLocation == -1) return;
+            if(value.constructor === Float32Array) {
+                switch(value.length) {
+                    case 1:
+                        gl.uniform1fv(uniformLocation, value);
+                        break;
+                    case 3:
+                        gl.uniform3fv(uniformLocation, value);
+                        break;
+                    case 9:
+                        gl.uniformMatrix3fv(uniformLocation, false,  value);
+                        break;
+                    case 16:
+                        gl.uniformMatrix4fv(uniformLocation, false, value);
+                        break;
+                }
+            }
+            else if(typeof value === "number") {
+                gl.uniform1f(uniformLocation, value);
+            }
+        }
+    },
+    drawMeshPart: function(meshPart) {
+        var tmp = mat3.create();
         var stride = meshPart.vertices.attributes.reduce(function(stride, attr) { return stride + attr.size; }, 0);
         var offset = 0;
         for(var i = 0; i < meshPart.vertices.attributes.length; i++) {
             var attr = meshPart.vertices.attributes[i];
             var attribName = attr.name;
 
-            var attribLocation = gl.getAttribLocation(glProgram, attribName);
+            var attribLocation = gl.getAttribLocation(this.shader, attribName);
             if(attribLocation != -1) {
                 gl.enableVertexAttribArray(attribLocation);
 
@@ -52,6 +84,14 @@ RenderManager = Class.extend({
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, meshPart.indices);
         gl.drawElements(gl.TRIANGLES, meshPart.count, gl.UNSIGNED_SHORT, 0);
+        for(var i = 0; i < meshPart.vertices.attributes.length; i++) {
+            var attr = meshPart.vertices.attributes[i];
+            var attribName = attr.name;
+            var attribLocation = gl.getAttribLocation(this.shader, attribName);
+            if(attribLocation != -1) {
+                gl.disableVertexAttribArray(attribLocation);
+            }
+        }
     },
     beginDraw: function(time, lightDir, view, projection) {
         mat3.fromMat4(this.normalMatrix, view);
@@ -59,16 +99,15 @@ RenderManager = Class.extend({
         mat3.transpose(this.normalMatrix, this.normalMatrix);
         mat4.mul(this.viewProjection, projection, view);
         this.lightDir = lightDir;
-        var uniformLocation = gl.getUniformLocation(glProgram, "time");
-        gl.uniform1f(uniformLocation, time);
-
-        uniformLocation = gl.getUniformLocation(glProgram, "projectionMatrix");
-        gl.uniformMatrix4fv(uniformLocation, false, this.viewProjection);
-
-        uniformLocation = gl.getUniformLocation(glProgram, "normalMatrix");
-        gl.uniformMatrix3fv(uniformLocation, false, this.normalMatrix);
-
-        uniformLocation = gl.getUniformLocation(glProgram, "lightDir");
-        gl.uniform3fv(uniformLocation, lightDir);
+        for(var shaderName in Shaders) {
+            this.setShader(Shaders[shaderName].program);
+            this.setUniforms({
+                time: time,
+                projectionMatrix: this.viewProjection,
+                normalMatrix: this.normalMatrix,
+                lightDir, lightDir
+            });
+        }
+        this.shader = null;
     }
 });

@@ -13,11 +13,13 @@
     <script src="animation.js"></script>
     <script src="bone.js"></script>
     <script src="inputHandler.js"></script>
-    <script src="primitive.js"></script>
+    <script src="pose.js"></script>
     <script src="mesh.js"></script>
     <script src="renderManager.js"></script>
     <script src="Models/male.g3dj"></script>
+    <script src="Models/helicopter.g3dj"></script>
     <script src="Models/anim.g3dj"></script>
+    <script src="Shaders/skinned.shader"></script>
     <script src="Shaders/diffuse.shader"></script>
   
 </head>
@@ -44,26 +46,25 @@ gl.clearDepth(1.0);                 // Clear everything
 gl.enable(gl.DEPTH_TEST);           // Enable depth testing
 gl.depthFunc(gl.LEQUAL);            // Near things obscure far things
 
-var glProgram = gl.createProgram();
+function createShader(name, type, source, program) {
+    glShader = gl.createShader(type);
+    gl.shaderSource(glShader, source);
+    gl.compileShader(glShader);
+    var compiled = gl.getShaderParameter(glShader, gl.COMPILE_STATUS);
+    if(!compiled){
+        gl.getError();
+        console.error("Shader " + name + " compile error: " + gl.getShaderInfoLog(glShader));
+    }
+    shader.vertex = glShader;
+    gl.attachShader(shader.program, glShader);
+}
 for(var shaderName in Shaders) {
     var shader = Shaders[shaderName];
-    if(shader.vertex) {
-        glShader = gl.createShader(gl.VERTEX_SHADER);
-        gl.shaderSource(glShader, shader.vertex);
-        gl.compileShader(glShader);
-        shader.vertex = glShader;
-        gl.attachShader(glProgram, glShader);
-    }
-    if(shader.fragment) {
-        glShader = gl.createShader(gl.FRAGMENT_SHADER);
-        gl.shaderSource(glShader, shader.fragment);
-        gl.compileShader(glShader);
-        shader.fragment = glShader;
-        gl.attachShader(glProgram, glShader);
-    }
+    shader.program = gl.createProgram();
+    createShader(shaderName + " vertex", gl.VERTEX_SHADER, shader.vertex, shader.program);
+    createShader(shaderName + " fragment", gl.FRAGMENT_SHADER, shader.fragment, shader.program);
+    gl.linkProgram(shader.program);
 }
-gl.linkProgram(glProgram);
-gl.useProgram(glProgram);
 
 var projection = mat4.create();
 var renderManager = new RenderManager(canvas, canvas.width, canvas.height);
@@ -98,6 +99,7 @@ var dude = new Entity();
 
 var mesh = G3DJToMesh(Models.male);
 dude.addComponent(mesh);
+dude.Mesh.shader = Shaders.skinned.program;
 
 dudeImage = new Image();
 dudeImage.crossOrigin = "anonymous";
@@ -108,6 +110,17 @@ var skeleton = G3DJToSkeleton(Models.male);
 dude.addComponent(skeleton);
 var animation = G3DJToAnimation(Models.anim);
 dude.addComponent(animation);
+dude.addComponent(new Pose());
+quat.rotateX(dude.Pose.rotation, dude.Pose.rotation, -Math.PI / 2);
+
+var helicopter = new Entity();
+helicopter.addComponent(new Pose());
+quat.rotateX(helicopter.Pose.rotation, helicopter.Pose.rotation, -Math.PI / 2);
+helicopter.addComponent(G3DJToMesh(Models.helicopter));
+helicopter.Mesh.shader = Shaders.skinned.program;
+helicopter.addComponent(G3DJToSkeleton(Models.helicopter));
+animation = G3DJToAnimation(Models.helicopter);
+helicopter.addComponent(animation);
 
 var cameraRotation = mat4.create();
 var view = mat4.create();
@@ -159,8 +172,10 @@ function loop(timestamp) {
     vec3.transformQuat(lightDir, forward, lightAngle);
 
     dude.update(delta);
+    helicopter.update(delta);
     renderManager.beginDraw(timestamp / 1000.0, lightDir, view, projection);
     dude.draw(renderManager);
+    helicopter.draw(renderManager);
     prev_timestamp = timestamp;
     mouseDiff = {x: 0, y: 0};
     window.requestAnimationFrame(loop);

@@ -27,7 +27,7 @@ Bone = Class.extend({
         mat4.fromRotationTranslation(this.transform, rot, tran);
         this._withParentTransform = mat4.create();
         this.currentTransform = mat4.create();
-        this.currentTransformN = mat4.create();
+        this.currentTransformN = mat3.create();
         this.invBindPose = mat4.create();
         mat4.invert(this.invBindPose, this.withParentTransform());
         this.bindPose = mat4.clone(this._withParentTransform);
@@ -39,8 +39,6 @@ Bone = Class.extend({
     },
     update: function() {
         mat4.mul(this.currentTransform, this.withParentTransform(), this.invBindPose);
-        mat4.copy(this.currentTransformN, this.currentTransform);
-        mat4.invert(this.currentTransformN, this.currentTransformN);
-        mat4.transpose(this.currentTransformN, this.currentTransformN);
+        mat3.normalFromMat4(this.currentTransformN, this.currentTransform);
     }
 });

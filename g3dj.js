@@ -62,7 +62,6 @@ function G3DJToSkeleton(obj) {
         var rot = obj.rotation ? quat.fromValues.apply(this, obj.rotation) : quat.create();
         var tran = obj.translation ? vec3.fromValues.apply(this, obj.translation) : vec3.create();
         var bone = new Bone(obj.id, parent, rot, tran);
-        if(!parent) quat.rotateX(bone.defRot, bone.defRot, -Math.PI / 2)
         if(obj.children){
             for (var i = 0; i < obj.children.length; i++) {
                 objToBone(obj.children[i], skeleton, bone);
@@ -80,7 +79,7 @@ function G3DJToSkeleton(obj) {
     return skeleton;
 }
 function G3DJToAnimation(obj) {
-    var animObj = obj.animations[2];
+    var animObj = obj.animations[0];
     var anim = new Animation();
     for (var i = 0; i < animObj.bones.length; i++) {
         var bone = animObj.bones[i];
