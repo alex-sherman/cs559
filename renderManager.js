@@ -92,7 +92,7 @@ RenderManager = Class.extend({
             }
         }
     },
-    beginDraw: function(time, lightDir, view, projection) {
+    beginDraw: function(time, lightDir, view, projection, cameraPos) {
         mat4.mul(this.viewProjection, projection, view);
         this.lightDir = lightDir;
         for(var shaderName in Shaders) {
@@ -100,7 +100,8 @@ RenderManager = Class.extend({
             this.setUniforms({
                 time: time,
                 projectionMatrix: this.viewProjection,
-                lightDir, lightDir
+                lightDir: lightDir,
+                cameraPosition: cameraPos
             });
         }
         this.shader = null;

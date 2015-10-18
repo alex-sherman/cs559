@@ -28,11 +28,11 @@ uniform mat4 worldMatrix;\
 uniform float time;\
 varying vec3 fNormal;\
 varying vec2 fTexCoord;\
+varying vec3 worldPos;\
 \
 void main()\
 {\
   mat4 boneTransform = mat4(1) * (1.0 - (sign(BLENDWEIGHT0.y)));\
-  mat3 normalTransform;\
   boneTransform += (boneTransforms[int(BLENDWEIGHT0.x)] * BLENDWEIGHT0.y);\
   boneTransform += (boneTransforms[int(BLENDWEIGHT1.x)] * BLENDWEIGHT1.y);\
   boneTransform += (boneTransforms[int(BLENDWEIGHT2.x)] * BLENDWEIGHT2.y);\
@@ -47,6 +47,7 @@ void main()\
   boneTransform += (boneTransforms[int(BLENDWEIGHT11.x)] * BLENDWEIGHT11.y);\
   boneTransform += (boneTransforms[int(BLENDWEIGHT12.x)] * BLENDWEIGHT12.y);\
 \
+  mat3 normalTransform = mat3(1) * (1.0 - (sign(BLENDWEIGHT0.y)));\
   normalTransform += (boneTransformsN[int(BLENDWEIGHT0.x)] * BLENDWEIGHT0.y);\
   normalTransform += (boneTransformsN[int(BLENDWEIGHT1.x)] * BLENDWEIGHT1.y);\
   normalTransform += (boneTransformsN[int(BLENDWEIGHT2.x)] * BLENDWEIGHT2.y);\
@@ -61,7 +62,8 @@ void main()\
   normalTransform += (boneTransformsN[int(BLENDWEIGHT11.x)] * BLENDWEIGHT11.y);\
   normalTransform += (boneTransformsN[int(BLENDWEIGHT12.x)] * BLENDWEIGHT12.y);\
   fNormal = normalMatrix * normalTransform * NORMAL;\
-  gl_Position =  projectionMatrix * worldMatrix * boneTransform * vec4(POSITION, 1);\
+  worldPos = (worldMatrix * boneTransform * vec4(POSITION, 1.0)).xyz;\
+  gl_Position =  projectionMatrix * vec4(worldPos, 1.0);\
   fTexCoord = TEXCOORD0;\
 }\
 ",
@@ -69,9 +71,11 @@ void main()\
 precision highp float;\
 uniform float time;\
 uniform vec3 lightDir;\
+uniform vec3 cameraPosition;\
 varying vec3 fNormal;\
 varying vec2 fTexCoord;\
 uniform sampler2D diffuse;\
+varying vec3 worldPos;\
 \
 void main()\
 {\
@@ -79,8 +83,13 @@ void main()\
   float rotSpeed = 5.0;\
   float tripScale = 0.5;\
   vec3 normal = normalize(fNormal);\
-  gl_FragColor = texture2D(diffuse, vec2(fTexCoord.x, fTexCoord.y));\
-  gl_FragColor.xyz *= base + clamp(dot(normal, lightDir), 0.0, 1.0 - base);\
+  float specular = 0.0;\
+  vec3 H = normalize((normalize(-lightDir) + normalize(cameraPosition - worldPos)));\
+  specular = max(0.0, (pow(max(0.0, dot(H, normal)), 16.0) - 0.5) * 2.0);\
+  vec3 diffuse = texture2D(diffuse, vec2(fTexCoord.x, fTexCoord.y)).rgb * (base + clamp(dot(normal, -lightDir), 0.0, 1.0 - base));\
+  gl_FragColor.a = 1.0;\
+  gl_FragColor.rgb = diffuse;\
+  gl_FragColor.rgb += specular;\
 }\
 "
 }

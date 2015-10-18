@@ -177,7 +177,7 @@ function loop(timestamp) {
 
     dude.update(delta);
     helicopter.update(delta);
-    renderManager.beginDraw(timestamp / 1000.0, lightDir, view, projection);
+    renderManager.beginDraw(timestamp / 1000.0, lightDir, view, projection, cameraPosition);
     dude.draw(renderManager);
     helicopter.draw(renderManager);
     prev_timestamp = timestamp;
