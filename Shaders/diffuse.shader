@@ -17,16 +17,22 @@ varying vec2 fTexCoord;\
 void main()\
 {\
   fNormal = normalMatrix * NORMAL;\
-  gl_Position =  projectionMatrix * vec4(POSITION, 1);\
+  gl_Position =  projectionMatrix * worldMatrix * vec4(POSITION, 1);\
   fTexCoord = TEXCOORD0;\
 }\
 ",
     fragment: "\
 precision highp float;\
+varying vec3 fNormal;\
+varying vec2 fTexCoord;\
+uniform vec3 lightDir;\
 \
 void main()\
 {\
-  gl_FragColor = vec4(0,1,0,1);\
+  float base = 0.4;\
+  gl_FragColor = vec4(0,1,1,1);\
+  vec3 normal = normalize(fNormal);\
+  gl_FragColor.xyz *= base + clamp(dot(normal, lightDir), 0.0, 1.0 - base);\
 }\
 "
 }

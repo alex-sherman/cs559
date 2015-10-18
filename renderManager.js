@@ -5,7 +5,6 @@ RenderManager = Class.extend({
         this.queue = [];
         this.lightDir = null;
         this.viewProjection = mat4.create();
-        this.normalMatrix = mat3.create();
     }),
     createTexture: function(image) {
         texture = gl.createTexture();
@@ -19,10 +18,10 @@ RenderManager = Class.extend({
     setTextures: function(textures) {
         var i = 0;
         for(var textureName in textures) {
-            gl.bindTexture(gl.TEXTURE_2D, null);
-            gl.activeTexture(gl.TEXTURE0 + i);
+            gl.activeTexture(gl.TEXTURE0 + 0);
             gl.bindTexture(gl.TEXTURE_2D, textures[textureName]);
-            gl.uniform1i(gl.getUniformLocation(this.shader, textureName), i);
+            var uniformLocation = gl.getUniformLocation(this.shader, textureName);
+            gl.uniform1i(uniformLocation, i);
         }
     },
     setShader: function(shader) {
@@ -94,9 +93,6 @@ RenderManager = Class.extend({
         }
     },
     beginDraw: function(time, lightDir, view, projection) {
-        mat3.fromMat4(this.normalMatrix, view);
-        mat3.invert(this.normalMatrix, this.normalMatrix);
-        mat3.transpose(this.normalMatrix, this.normalMatrix);
         mat4.mul(this.viewProjection, projection, view);
         this.lightDir = lightDir;
         for(var shaderName in Shaders) {
@@ -104,7 +100,6 @@ RenderManager = Class.extend({
             this.setUniforms({
                 time: time,
                 projectionMatrix: this.viewProjection,
-                normalMatrix: this.normalMatrix,
                 lightDir, lightDir
             });
         }

@@ -80,7 +80,7 @@ void main()\
   float tripScale = 0.5;\
   vec3 normal = normalize(fNormal);\
   gl_FragColor = texture2D(diffuse, vec2(fTexCoord.x, fTexCoord.y));\
-  gl_FragColor.xyz *= base * dot(normal, vec3(0,0,1)) + clamp(dot(normal, vec3(cos(time * rotSpeed),0,sin(time * rotSpeed))), 0.0, 1.0 - base);\
+  gl_FragColor.xyz *= base + clamp(dot(normal, lightDir), 0.0, 1.0 - base);\
 }\
 "
 }

@@ -8,9 +8,11 @@ Mesh = Component.extend({
         renderManager.setShader(this.shader);
         if(this.entity.Pose) {
             renderManager.setUniform("worldMatrix", this.entity.Pose.transform);
+            renderManager.setUniform("normalMatrix", this.entity.Pose.normalTransform);
         }
         else {
             renderManager.setUniform("worldMatrix", mat4.create());
+            renderManager.setUniform("normalMatrix", mat3.create());
         }
         renderManager.setTextures(this.textures);
         for (meshPartId in this.parts) {
