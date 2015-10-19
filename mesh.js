@@ -30,7 +30,7 @@ Mesh = Component.extend({
                     boneTransformsN: boneTransformsN
                 })
             }
-            renderManager.drawMeshPart(meshPart);
+            renderManager.drawVertices(meshPart.vertices, meshPart.indices, meshPart.count);
         };
     }
 });

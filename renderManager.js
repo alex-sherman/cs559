@@ -63,28 +63,28 @@ RenderManager = Class.extend({
             }
         }
     },
-    drawMeshPart: function(meshPart) {
+    drawVertices: function(vertices, indices, count) {
         var tmp = mat3.create();
-        var stride = meshPart.vertices.attributes.reduce(function(stride, attr) { return stride + attr.size; }, 0);
+        var stride = vertices.attributes.reduce(function(stride, attr) { return stride + attr.size; }, 0);
         var offset = 0;
-        for(var i = 0; i < meshPart.vertices.attributes.length; i++) {
-            var attr = meshPart.vertices.attributes[i];
+        for(var i = 0; i < vertices.attributes.length; i++) {
+            var attr = vertices.attributes[i];
             var attribName = attr.name;
 
             var attribLocation = gl.getAttribLocation(this.shader, attribName);
             if(attribLocation != -1) {
                 gl.enableVertexAttribArray(attribLocation);
 
-                gl.bindBuffer(gl.ARRAY_BUFFER, meshPart.vertices.buffer);
+                gl.bindBuffer(gl.ARRAY_BUFFER, vertices.buffer);
                 gl.vertexAttribPointer(attribLocation, attr.size, gl.FLOAT, false, stride * 4, offset * 4);
             }
             offset += attr.size;
         }
 
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, meshPart.indices);
-        gl.drawElements(gl.TRIANGLES, meshPart.count, gl.UNSIGNED_SHORT, 0);
-        for(var i = 0; i < meshPart.vertices.attributes.length; i++) {
-            var attr = meshPart.vertices.attributes[i];
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indices);
+        gl.drawElements(gl.TRIANGLES, count, gl.UNSIGNED_SHORT, 0);
+        for(var i = 0; i < vertices.attributes.length; i++) {
+            var attr = vertices.attributes[i];
             var attribName = attr.name;
             var attribLocation = gl.getAttribLocation(this.shader, attribName);
             if(attribLocation != -1) {

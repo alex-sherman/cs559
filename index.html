@@ -15,12 +15,14 @@
     <script src="inputHandler.js"></script>
     <script src="pose.js"></script>
     <script src="mesh.js"></script>
+    <script src="grass.js"></script>
     <script src="renderManager.js"></script>
     <script src="Models/male.g3dj"></script>
     <script src="Models/helicopter.g3dj"></script>
     <script src="Models/anim.g3dj"></script>
     <script src="Shaders/skinned.shader"></script>
     <script src="Shaders/diffuse.shader"></script>
+    <script src="Shaders/grass.shader"></script>
   
 </head>
 <body>
@@ -45,6 +47,7 @@ gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
 gl.clearDepth(1.0);                 // Clear everything
 gl.enable(gl.DEPTH_TEST);           // Enable depth testing
 gl.depthFunc(gl.LEQUAL);            // Near things obscure far things
+gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
 function createShader(name, type, source, program) {
     glShader = gl.createShader(type);
@@ -126,6 +129,13 @@ heliDiffuse.crossOrigin = "anonymous";
 heliDiffuse.onload = function() { helicopter.Mesh.textures["diffuse"] = renderManager.createTexture(heliDiffuse); }
 heliDiffuse.src = "http://static.vector57.net/cs559/P7/Models/Helicopter_Diffuse_Color.png";
 
+var grass = new Entity();
+grass.addComponent(new Grass([vec3.fromValues(0,0,0), vec3.fromValues(0,0,2), vec3.fromValues(2,0,2), vec3.fromValues(2,0,0)]));
+grass.addComponent(new Pose());
+grass.Pose.scale[0] = 0.4;
+grass.Pose.scale[1] = 1;
+grass.Pose.scale[2] = 0.4;
+
 var cameraRotation = mat4.create();
 var view = mat4.create();
 var viewProjection = mat4.create();
@@ -174,12 +184,9 @@ function loop(timestamp) {
     //Light direction
     quat.rotateY(lightAngle, lightAngle, delta);
     vec3.transformQuat(lightDir, forward, lightAngle);
-
-    dude.update(delta);
-    helicopter.update(delta);
+    Entity.entities.map(function(entity) { entity.update(delta); });
     renderManager.beginDraw(timestamp / 1000.0, lightDir, view, projection, cameraPosition);
-    dude.draw(renderManager);
-    helicopter.draw(renderManager);
+    Entity.entities.map(function(entity) { entity.draw(renderManager); });
     prev_timestamp = timestamp;
     mouseDiff = {x: 0, y: 0};
     window.requestAnimationFrame(loop);

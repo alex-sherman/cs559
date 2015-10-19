@@ -16,6 +16,7 @@ EntityCallthrough = function(propertyName) {
 }
 Entity = Class.extend({
     init: (function Entity() {
+        Entity.entities.push(this);
         components = arguments || [];
         this.components = [];
         this.callbacks = {};
@@ -42,3 +43,5 @@ Entity = Class.extend({
     update: EntityCallthrough("update"),
     draw: EntityCallthrough("draw")
 });
+
+Entity.entities = [];
