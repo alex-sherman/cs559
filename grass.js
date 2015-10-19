@@ -33,6 +33,7 @@ $(document).ready(function() {
         attributes: [
             {name: "POSITION", size: 3},
             {name: "TEXCOORD0", size: 2},
+            {name: "NORMAL", size: 3},
         ],
         buffer: gl.createBuffer()
     }
@@ -40,22 +41,23 @@ $(document).ready(function() {
     var L = A / 2 / Math.sqrt(3);
     var O = A / 2;
     var O2 = 2 * O / Math.sqrt(2);
+    var N = 1 / Math.sqrt(2);
     gl.bindBuffer(gl.ARRAY_BUFFER, Grass.vertices.buffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-        O2-A, 0, -O2-4 * L,   0,1, 
-        O2-A, 1, -O2-4 * L,   0,0, 
-        O2+A / 2, 1, -O2+5 * L, 1,0, 
-        O2+A / 2, 0, -O2+5 * L, 1,1,
+        O2-A, 0, -O2-4 * L,   0,1, -N,N,0,
+        O2-A, 1, -O2-4 * L,   0,0, -N,N,0,
+        O2+A / 2, 1, -O2+5 * L, 1,0, -N,N,0,
+        O2+A / 2, 0, -O2+5 * L, 1,1, -N,N,0,
 
-        -O2+A, 0, -O2-4 * L,   0,1, 
-        -O2+A, 1, -O2-4 * L,   0,0, 
-        -O2-A / 2, 1, -O2+5 * L, 1,0, 
-        -O2-A / 2, 0, -O2+5 * L, 1,1,
+        -O2+A, 0, -O2-4 * L,   0,1, N,N,0,
+        -O2+A, 1, -O2-4 * L,   0,0, N,N,0,
+        -O2-A / 2, 1, -O2+5 * L, 1,0, N,N,0,
+        -O2-A / 2, 0, -O2+5 * L, 1,1, N,N,0,
 
-        -A * 1.5, 0, O-L,   0,1, 
-        -A * 1.5, 1, O-L,   0,0, 
-        A * 1.5, 1, O-L, 1,0, 
-        A * 1.5, 0, O-L, 1,1,
+        -A * 1.5, 0, O-L,  0,1, 0,0,-1,
+        -A * 1.5, 1, O-L,  0,0, 0,0,-1,
+        A * 1.5, 1, O-L, 1,0, 0,0,-1,
+        A * 1.5, 0, O-L, 1,1, 0,0,-1,
 
         ]), gl.STATIC_DRAW);
     Grass.image = new Image();
