@@ -17,6 +17,7 @@ Mesh = Component.extend({
         renderManager.setTextures(this.textures);
         for (meshPartId in this.parts) {
             var meshPart = this.parts[meshPartId];
+            renderManager.setUniforms(meshPart.material);
             if(this.entity.Skeleton && meshPart.bones) {
                 var bones = this.entity.Skeleton.bones;
                 boneTransforms = meshPart.bones.map(function(boneName) {

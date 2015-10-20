@@ -40,12 +40,20 @@ function G3DJToMesh(obj) {
             meshParts[meshObj.parts[i].id] = new MeshPart(meshObj.parts[i].id, vertices, indices, meshObj.parts[i].indices.length);
         }
     }
+    var materials = obj.materials.reduce(function(obj, material) {
+        obj[material.id] = {
+            specularColor: new Float32Array(material.specular),
+            shininess: Number(material.shininess)
+        };
+        return obj;
+    }, {});
     for (var j = 0; j < obj.nodes.length; j++) {
         var objNode = obj.nodes[j];
         if(!("parts" in objNode)) continue;
         for (var i = 0; i < objNode.parts.length; i++) {
             var nodePart = objNode.parts[i];
             var meshPartId = nodePart.meshpartid;
+            var materialId = nodePart.materialid;
             var bones = [];
             if(("bones" in nodePart)) {
                 bones = nodePart.bones.map(function(bone) {
@@ -53,6 +61,7 @@ function G3DJToMesh(obj) {
                 });
             }
             meshParts[meshPartId].bones = bones;
+            meshParts[meshPartId].material = materials[materialId];
         }
     }
     return new Mesh(meshParts);
