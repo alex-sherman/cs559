@@ -83,21 +83,9 @@ resizeCallback();
 $(window).resize(function() {
     resizeCallback();
 })
-var mouseDiff = {x: 0, y: 0};
-function moveCallback(x, y) {
-    mouseDiff.x += x;
-    mouseDiff.y += y;
-}
-initMouseHandling($("#canvas"), moveCallback);
 
-var prev_timestamp = 0;
-var cameraPosition = vec3.fromValues(1, 1, 1);
-var theta = Math.PI / 4;
-var phi = 0;
-var moveSpeed = 1;
-var cameraSensitivity = 1;
-var moveDir = vec3.create();
-var mouseSensitivity = 1 / 300;
+initMouseHandling();
+
 var dude = new Entity();
 
 var mesh = G3DJToMesh(Models.male);
@@ -136,10 +124,20 @@ grass.Pose.scale[0] = 0.4;
 grass.Pose.scale[1] = 1;
 grass.Pose.scale[2] = 0.4;
 
+var prev_timestamp = 0;
+var cameraPosition = vec3.create();
+var cameraLookAt = vec3.create();
+var cameraR = 3;
+var theta = Math.PI / 4;
+var phi = 0;
+var moveSpeed = 1;
+var cameraSensitivity = 1;
+var moveDir = vec3.create();
+var mouseSensitivity = 1 / 300;
+
 var cameraRotation = mat4.create();
 var view = mat4.create();
 var viewProjection = mat4.create();
-var cameraLookAt = vec3.create();
 var cameraUp = vec3.create();
 var forward = vec3.fromValues(0, 0, -1);
 var lightAngle = quat.create();
@@ -163,32 +161,35 @@ function loop(timestamp) {
     if(keyboardState[40]) phi += cameraSensitivity * delta;
     if(keyboardState[37]) theta += cameraSensitivity * delta;
     if(keyboardState[39]) theta -= cameraSensitivity * delta;
+    if(mouseState.buttons.left) {
+        theta -= mouseState.delta[0] * mouseSensitivity;
+        phi -= mouseState.delta[1] * mouseSensitivity;
+    }
 
     mat4.identity(cameraRotation);
     mat4.rotateY(cameraRotation, cameraRotation, theta);
     vec3.transformMat4(moveDir, moveDir, cameraRotation);
-    cameraPosition = vec3.add(cameraPosition, cameraPosition, vec3.scale(moveDir, moveDir,moveSpeed * delta));
-    theta -= mouseDiff.x * mouseSensitivity;
-    phi -= mouseDiff.y * mouseSensitivity;
+    vec3.add(cameraLookAt, cameraLookAt, vec3.scale(moveDir, moveDir,moveSpeed * delta));
     if(theta > Math.PI * 2) theta -= Math.PI * 2;
 
     //Camera matrix calculation
     mat4.rotateX(cameraRotation, cameraRotation, phi);
-    vec3.set(cameraLookAt, 0, 0, -1);
+    vec3.set(cameraPosition, 0, 0, cameraR);
     vec3.set(cameraUp, 0, 1, 0);
-    vec3.transformMat4(cameraLookAt, cameraLookAt, cameraRotation);
+    vec3.transformMat4(cameraPosition, cameraPosition, cameraRotation);
     vec3.transformMat4(cameraUp, cameraUp, cameraRotation);
-    vec3.add(cameraLookAt, cameraLookAt, cameraPosition);
+    vec3.add(cameraPosition, cameraLookAt, cameraPosition);
     mat4.lookAt(view, cameraPosition, cameraLookAt, cameraUp)
 
     //Light direction
     quat.rotateY(lightAngle, lightAngle, delta);
     vec3.transformQuat(lightDir, forward, lightAngle);
+
     Entity.entities.map(function(entity) { entity.update(delta); });
     renderManager.beginDraw(timestamp / 1000.0, lightDir, view, projection, cameraPosition);
     Entity.entities.map(function(entity) { entity.draw(renderManager); });
     prev_timestamp = timestamp;
-    mouseDiff = {x: 0, y: 0};
+    updateInputState();
     window.requestAnimationFrame(loop);
 }
 loop(0);

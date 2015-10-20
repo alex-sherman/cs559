@@ -2,12 +2,12 @@
 //but I won't claim it as my own
 
 var keyboardState = {};
-
-function initMouseHandling(canvas, moveCallback) {
-    document.addEventListener('pointerlockchange', changeCallback, false);
-    document.addEventListener('mozpointerlockchange', changeCallback, false);
-    document.addEventListener('webkitpointerlockchange', changeCallback, false);
-    var canvasElement = canvas.get()[0];
+var mouseState = {buttons: {left: false, midde: false, right: false}, position: vec2.create(), delta: vec2.create()};
+function updateInputState() {
+    mouseState.delta[0] = 0;
+    mouseState.delta[1] = 0;
+}
+function initMouseHandling() {
     var mouseCaptured = false;
     var allowedKeys = [116];
     $(document).keydown(function(event) {
@@ -21,51 +21,20 @@ function initMouseHandling(canvas, moveCallback) {
             event.preventDefault();
     });
 
-    canvas.click(function () {
-        canvasElement.requestPointerLock = canvasElement.requestPointerLock ||
-                canvasElement.mozRequestPointerLock ||
-                canvasElement.webkitRequestPointerLock;
-
-        // Ask the browser to lock the pointer)
-        canvasElement.requestPointerLock();
-    });
-
-    var firstMoveCallback = false;
-    function isCaptured() {
-        return document.pointerLockElement === canvasElement ||
-                document.mozPointerLockElement === canvasElement ||
-                document.webkitPointerLockElement === canvasElement;
-    }
     function moveCallbackCaller(event) {
-        if(firstMoveCallback) {
-            firstMoveCallback = false;
-            return;
-        }
-        var movementX = event.movementX ||
+        mouseState.buttons.left = event.buttons & 1;
+        mouseState.buttons.middle = event.buttons & 3;
+        mouseState.buttons.right = event.buttons & 2;
+        mouseState.delta[0] += event.movementX ||
                 event.mozMovementX ||
-                event.webkitMovementX ||
                 0;
  
-        var movementY = event.movementY ||
+        mouseState.delta[1] += event.movementY ||
                 event.mozMovementY ||
-                event.webkitMovementY ||
                 0;
-        moveCallback(movementX, movementY);
+        mouseState.position[0] = event.pageX;
+        mouseState.position[1] = event.pageY;
     }
-
-    function changeCallback(e) {
-        if (isCaptured()) {
-
-            // we've got a pointerlock for our element, add a mouselistener
-            document.addEventListener("mousemove", moveCallbackCaller, false);
-            firstMoveCallback = true;
-        } else {
-
-            // pointer lock is no longer active, remove the callback
-            document.removeEventListener("mousemove", moveCallbackCaller, false);
-
-            // and reset the entry coordinates
-            entryCoordinates = {x:-1, y:-1};
-        }
-    };
+    document.addEventListener("mousemove", moveCallbackCaller, false);
+    document.addEventListener("click", moveCallbackCaller, false);
 }
