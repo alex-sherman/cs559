@@ -2,10 +2,11 @@
 //but I won't claim it as my own
 
 var keyboardState = {};
-var mouseState = {buttons: {left: false, midde: false, right: false}, position: vec2.create(), delta: vec2.create()};
+var mouseState = {buttons: {left: false, midde: false, right: false}, position: vec2.create(), delta: vec2.create(), wheelDelta: 0};
 function updateInputState() {
     mouseState.delta[0] = 0;
     mouseState.delta[1] = 0;
+    mouseState.wheelDelta = 0;
 }
 function initMouseHandling() {
     var mouseCaptured = false;
@@ -34,7 +35,9 @@ function initMouseHandling() {
                 0;
         mouseState.position[0] = event.pageX;
         mouseState.position[1] = event.pageY;
+        mouseState.wheelDelta += event.wheelDelta || 0;
     }
     document.addEventListener("mousemove", moveCallbackCaller, false);
     document.addEventListener("click", moveCallbackCaller, false);
+    document.addEventListener("mousewheel", moveCallbackCaller, false);
 }

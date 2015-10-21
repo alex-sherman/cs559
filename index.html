@@ -158,8 +158,8 @@ function loop(timestamp) {
     if(keyboardState[65]) moveDir[0] -= 1;
     if(keyboardState[32]) moveDir[1] += 1;
     if(keyboardState[67]) moveDir[1] -= 1;
-    if(keyboardState[69] && cameraR > moveSpeed * delta) cameraR -= moveSpeed * delta;
-    if(keyboardState[81]) cameraR += moveSpeed * delta;
+    cameraR -= mouseState.wheelDelta / 200;
+    cameraR = Math.max(1, cameraR);
     if(keyboardState[38]) phi -= cameraSensitivity * delta;
     if(keyboardState[40]) phi += cameraSensitivity * delta;
     if(keyboardState[37]) theta += cameraSensitivity * delta;
