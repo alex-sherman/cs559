@@ -39,8 +39,8 @@ $(document).ready(function() {
     }
     var A = 4 / 3;
     var L = A / 2 / Math.sqrt(3);
-    var O = A / 2;
-    var O2 = 2 * O / Math.sqrt(2);
+    var O = L;
+    var O2 = O / Math.sqrt(2);
     var N = 1 / Math.sqrt(2);
     gl.bindBuffer(gl.ARRAY_BUFFER, Grass.vertices.buffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
