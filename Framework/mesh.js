@@ -36,7 +36,6 @@ Mesh = Component.extend({
     },
     loadTexture: function(name, url) {
         var image = new Image();
-        image.crossOrigin = "anonymous";
         var self = this;
         image.onload = function() { self.textures[name] = renderManager.createTexture(image); }
         image.src = url;

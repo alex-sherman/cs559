@@ -118,10 +118,7 @@ helicopter.addComponent(G3DJToSkeleton(Models.helicopter));
 animation = G3DJToAnimation(Models.helicopter);
 helicopter.addComponent(animation);
 animation.play("Spinning");
-heliDiffuse = new Image();
-heliDiffuse.crossOrigin = "anonymous";
-heliDiffuse.onload = function() { helicopter.Mesh.textures["diffuse"] = renderManager.createTexture(heliDiffuse); }
-heliDiffuse.src = "http://static.vector57.net/cs559/P7/Models/Helicopter_Diffuse_Color.png";
+helicopter.Mesh.loadTexture("diffuse", "Models/Helicopter_Diffuse_Color.png");
 
 var terrain = new Entity();
 terrain.addComponent(new Heightmap("Models/Heightmap.png"));

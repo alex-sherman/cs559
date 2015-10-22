@@ -61,7 +61,6 @@ $(document).ready(function() {
 
         ]), gl.STATIC_DRAW);
     Grass.image = new Image();
-    Grass.image.crossOrigin = "anonymous";
     Grass.image.onload = function() { Grass.texture = renderManager.createTexture(Grass.image); }
-    Grass.image.src = "http://static.vector57.net/cs559/P7/Models/grass.png";
+    Grass.image.src = "Models/grass.png";
 });

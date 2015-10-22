@@ -2,7 +2,6 @@ Heightmap = Mesh.extend({
     init: (function Heightmap(url) {
         Mesh.init.apply(this);
         var image = new Image();
-        image.crossOrigin = "anonymous";
         var self = this;
         image.onload = function() {
             var vertices = self.verticesFromImage(this);
