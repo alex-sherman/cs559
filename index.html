@@ -27,13 +27,10 @@
 </head>
 <body>
     <canvas id="canvas" style="position:absolute;"></canvas>
-    <div id="containerDiv" align="center">
+    <div id="containerDiv" align="center" style="position:absolute;width:100%">
         <div id ="fps"></div>
-        <center>
-            Use WASD to move the camera's location, and click into the <br>
-            canvas or use the arrow keys to change the camera orientation.<br>
-            Space and control move up and down.
-        </center>
+        <input type="range" id="lightValue" value="50"><br>
+        Time of Day
     </div>
 
 <script type='text/javascript'>//<![CDATA[
@@ -67,7 +64,7 @@ $(window).resize(function() {
     resizeCallback();
 })
 
-initMouseHandling();
+initMouseHandling($("#canvas"));
 
 var dude = new Entity();
 
@@ -157,7 +154,7 @@ var cameraRotation = mat4.create();
 var view = mat4.create();
 var viewProjection = mat4.create();
 var cameraUp = vec3.create();
-var forward = vec3.fromValues(0, 0, -1);
+var forward = vec3.fromValues(0, 1, 0);
 var lightAngle = quat.create();
 var lightDir = vec3.create();
 var averageFPS = 0;
@@ -202,7 +199,9 @@ function loop(timestamp) {
     mat4.lookAt(view, cameraPosition, cameraLookAt, cameraUp)
 
     //Light direction
-    quat.rotateY(lightAngle, lightAngle, delta);
+    quat.identity(lightAngle);
+
+    quat.rotateZ(lightAngle, lightAngle, Number($("#lightValue").val()) / 50 * Math.PI);
     vec3.transformQuat(lightDir, forward, lightAngle);
 
     Entity.entities.map(function(entity) { entity.update(delta); });

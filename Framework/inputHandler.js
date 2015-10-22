@@ -8,7 +8,7 @@ function updateInputState() {
     mouseState.delta[1] = 0;
     mouseState.wheelDelta = 0;
 }
-function initMouseHandling() {
+function initMouseHandling(canvas) {
     var mouseCaptured = false;
     var allowedKeys = [116];
     $(document).keydown(function(event) {
@@ -23,6 +23,7 @@ function initMouseHandling() {
     });
 
     function moveCallbackCaller(event) {
+        if(canvas[0] != event.srcElement) return;
         mouseState.buttons.left = event.buttons & 1;
         mouseState.buttons.middle = event.buttons & 3;
         mouseState.buttons.right = event.buttons & 2;

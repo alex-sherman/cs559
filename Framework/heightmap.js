@@ -13,10 +13,15 @@ Heightmap = Mesh.extend({
     }),
     verticesFromImage: function(image) {
         var output = {
-            attributes: [{name: "POSITION", size: 3}],
+            attributes: [{name: "POSITION", size: 3}, {name: "NORMAL", size: 3}],
             buffer: gl.createBuffer()
         }
-        var vertices = [0,0,0,10,0,0,10,0,10,0,0,10];
+        var vertices = [
+            0,0,0, 0,1,0,
+            10,0,0, 0,1,0,
+            10,0,10, 0,1,0,
+            0,0,10, 0,1,0
+        ];
         gl.bindBuffer(gl.ARRAY_BUFFER, output.buffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
         return output;

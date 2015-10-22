@@ -14,7 +14,7 @@ varying vec2 fTexCoord;
 void main()
 {
   fNormal = normalMatrix * NORMAL;
-  worldPos = (worldMatrix * vec4(offset + POSITION + vec3(0,0,POSITION.y * sin(time)/10.0), 1)).xyz;
+  worldPos = (worldMatrix * vec4(offset + POSITION + vec3(0,0,POSITION.y * sin(time)/2.0), 1)).xyz;
   gl_Position =  projectionMatrix * vec4(worldPos, 1.0);
   fTexCoord = TEXCOORD0;
 }
