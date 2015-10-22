@@ -1,8 +1,8 @@
 Mesh = Component.extend({
-    init: (function Mesh(meshParts) {
+    init: (function Mesh(meshParts, shader) {
         this.parts = meshParts || {};
         this.textures = {};
-        this.shader = Shaders.diffuse.program;
+        this.shader = shader || Shaders.diffuse;
     }),
     draw: function(renderManager) {
         renderManager.setShader(this.shader);
@@ -33,6 +33,13 @@ Mesh = Component.extend({
             }
             renderManager.drawVertices(meshPart.vertices, meshPart.indices, meshPart.count);
         };
+    },
+    loadTexture: function(name, url) {
+        var image = new Image();
+        image.crossOrigin = "anonymous";
+        var self = this;
+        image.onload = function() { self.textures[name] = renderManager.createTexture(image); }
+        image.src = url;
     }
 });
     

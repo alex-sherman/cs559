@@ -7,22 +7,22 @@
 
     <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.3.1/gl-matrix-min.js"></script>
-    <script src="class.js"></script>
-    <script src="g3dj.js"></script>
-    <script src="entity.js"></script>
-    <script src="animation.js"></script>
-    <script src="bone.js"></script>
-    <script src="inputHandler.js"></script>
-    <script src="pose.js"></script>
-    <script src="mesh.js"></script>
-    <script src="grass.js"></script>
-    <script src="renderManager.js"></script>
+    <script src="Framework/class.js"></script>
+    <script src="Framework/g3dj.js"></script>
+    <script src="Framework/entity.js"></script>
+    <script src="Framework/animation.js"></script>
+    <script src="Framework/bone.js"></script>
+    <script src="Framework/inputHandler.js"></script>
+    <script src="Framework/pose.js"></script>
+    <script src="Framework/mesh.js"></script>
+    <script src="Framework/grass.js"></script>
+    <script src="Framework/shader.js"></script>
+    <script src="Framework/renderManager.js"></script>
+    <script src="Framework/heightmap.js"></script>
+    <script src="Framework/behavior.js"></script>
     <script src="Models/male.g3dj"></script>
     <script src="Models/helicopter.g3dj"></script>
     <script src="Models/anim.g3dj"></script>
-    <script src="Shaders/skinned.shader"></script>
-    <script src="Shaders/diffuse.shader"></script>
-    <script src="Shaders/grass.shader"></script>
   
 </head>
 <body>
@@ -35,9 +35,6 @@
             Space and control move up and down.
         </center>
     </div>
-  
-
-
 
 <script type='text/javascript'>//<![CDATA[
 var canvas = document.getElementById("canvas");
@@ -49,24 +46,10 @@ gl.enable(gl.DEPTH_TEST);           // Enable depth testing
 gl.depthFunc(gl.LEQUAL);            // Near things obscure far things
 gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
-function createShader(name, type, source, program) {
-    glShader = gl.createShader(type);
-    gl.shaderSource(glShader, source);
-    gl.compileShader(glShader);
-    var compiled = gl.getShaderParameter(glShader, gl.COMPILE_STATUS);
-    if(!compiled){
-        gl.getError();
-        console.error("Shader " + name + " compile error: " + gl.getShaderInfoLog(glShader));
-    }
-    shader.vertex = glShader;
-    gl.attachShader(shader.program, glShader);
-}
-for(var shaderName in Shaders) {
-    var shader = Shaders[shaderName];
-    shader.program = gl.createProgram();
-    createShader(shaderName + " vertex", gl.VERTEX_SHADER, shader.vertex, shader.program);
-    createShader(shaderName + " fragment", gl.FRAGMENT_SHADER, shader.fragment, shader.program);
-    gl.linkProgram(shader.program);
+Shaders = {
+    diffuse: CreateShader("Shaders/diffuse"),
+    skinned: CreateShader("Shaders/skinned"),
+    grass: CreateShader("Shaders/grass")
 }
 
 var projection = mat4.create();
@@ -88,14 +71,39 @@ initMouseHandling();
 
 var dude = new Entity();
 
-var mesh = G3DJToMesh(Models.male);
+var mesh = new Mesh(G3DJToMesh(Models.male), Shaders.skinned);
 dude.addComponent(mesh);
-dude.Mesh.shader = Shaders.skinned.program;
+dude.Mesh.loadTexture("diffuse", "Models/Dude Suit.png");
+dude.addComponent(new Behavior({animation: "Default", pause: 2, target: vec3.create()}, function(dt) {
+    var moveSpeed = 0.05;
+    var move = vec3.create();
+    var position = this.entity.Pose.position;
+    this.pause -= dt;
+    if(this.pause <= 0) {
+        vec3.random(this.target, 5);
+        this.target[1] = 0;
+        this.pause = 2;
+    }
 
-dudeImage = new Image();
-dudeImage.crossOrigin = "anonymous";
-dudeImage.onload = function() { mesh.textures["diffuse"] = renderManager.createTexture(dudeImage); }
-dudeImage.src = "http://static.vector57.net/cs559/P7/Models/Dude Suit.png";
+    vec3.subtract(move, this.target, position)
+    if(vec3.sqrLen(move) < dt * moveSpeed) {
+        this.animation = "Default"
+        vec3.copy(position, this.target);
+    }
+    else {
+        this.animation = "Run";
+        vec3.normalize(move, move);
+        vec3.scale(move, move, moveSpeed);
+        vec3.add(position, position, move);
+        this.entity.Pose.face(move);
+    }
+
+    var anim = this.entity.Animation;
+    if(!anim.currentClip || anim.currentClip.name != this.animation) {
+        anim.stop();
+        anim.play(this.animation);
+    }
+}));
 
 var skeleton = G3DJToSkeleton(Models.male);
 dude.addComponent(skeleton);
@@ -108,22 +116,31 @@ var helicopter = new Entity();
 helicopter.addComponent(new Pose());
 quat.rotateX(helicopter.Pose.rotation, helicopter.Pose.rotation, -Math.PI / 2);
 helicopter.Pose.position[1] = 2;
-helicopter.addComponent(G3DJToMesh(Models.helicopter));
-helicopter.Mesh.shader = Shaders.skinned.program;
+helicopter.addComponent(new Mesh(G3DJToMesh(Models.helicopter), Shaders.skinned));
 helicopter.addComponent(G3DJToSkeleton(Models.helicopter));
 animation = G3DJToAnimation(Models.helicopter);
 helicopter.addComponent(animation);
+animation.play("Spinning");
 heliDiffuse = new Image();
 heliDiffuse.crossOrigin = "anonymous";
 heliDiffuse.onload = function() { helicopter.Mesh.textures["diffuse"] = renderManager.createTexture(heliDiffuse); }
 heliDiffuse.src = "http://static.vector57.net/cs559/P7/Models/Helicopter_Diffuse_Color.png";
 
+var terrain = new Entity();
+terrain.addComponent(new Heightmap("Models/Heightmap.png"));
+terrain.addComponent(new Pose());
+terrain.Pose.position[0] = -5;
+terrain.Pose.position[2] = -5;
+
 var grass = new Entity();
-grass.addComponent(new Grass([vec3.fromValues(0,0,0), vec3.fromValues(0,0,2), vec3.fromValues(2,0,2), vec3.fromValues(2,0,0)]));
+grass.addComponent(new Grass([
+    vec3.fromValues(0,0,0), vec3.fromValues(0,0,7),
+    vec3.fromValues(-2,0,3.5), vec3.fromValues(2,0,3.5), vec3.fromValues(6,0,3.5),
+    vec3.fromValues(4,0,7), vec3.fromValues(4,0,0)]));
 grass.addComponent(new Pose());
-grass.Pose.scale[0] = 0.4;
+grass.Pose.scale[0] = 0.3;
 grass.Pose.scale[1] = 1;
-grass.Pose.scale[2] = 0.4;
+grass.Pose.scale[2] = 0.3;
 
 var prev_timestamp = 0;
 var cameraPosition = vec3.create();

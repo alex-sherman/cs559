@@ -96,7 +96,7 @@ RenderManager = Class.extend({
         mat4.mul(this.viewProjection, projection, view);
         this.lightDir = lightDir;
         for(var shaderName in Shaders) {
-            this.setShader(Shaders[shaderName].program);
+            this.setShader(Shaders[shaderName]);
             this.setUniforms({
                 time: time,
                 projectionMatrix: this.viewProjection,

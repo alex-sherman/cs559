@@ -11,6 +11,12 @@ Skeleton = Component.extend({
         for(bone in this.bones) {
             this.bones[bone].update();
         }
+    },
+    resetKeyframes: function() {
+        for(bone_name in this.bones) {
+            this.bones[bone_name].prev_kf = new KeyFrame(0, this.bone_name);
+            this.bones[bone_name].next_kf = new KeyFrame(0, this.bone_name);
+        }
     }
 });
 

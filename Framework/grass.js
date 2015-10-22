@@ -2,7 +2,7 @@ Grass = Component.extend({
     init: (function Grass(positions) {
         this.positions = positions;
         this.texture = null;
-        this.shader = Shaders.grass.program;
+        this.shader = Shaders.grass;
     }),
     draw: function(renderManager) {
         gl.enable(gl.BLEND);

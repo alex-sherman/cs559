@@ -64,7 +64,7 @@ function G3DJToMesh(obj) {
             meshParts[meshPartId].material = materials[materialId];
         }
     }
-    return new Mesh(meshParts);
+    return meshParts;
 }
 function G3DJToSkeleton(obj) {
     function objToBone(obj, skeleton, parent) {
@@ -88,19 +88,23 @@ function G3DJToSkeleton(obj) {
     return skeleton;
 }
 function G3DJToAnimation(obj) {
-    var animObj = obj.animations[0];
-    var anim = new Animation();
-    for (var i = 0; i < animObj.bones.length; i++) {
-        var bone = animObj.bones[i];
-        for (var j = 0; j < bone.keyframes.length; j++) {
-            var kf = bone.keyframes[j];
-            anim.addKeyFrame(
-                Math.max(0, kf.keytime) / 1000,
-                bone.boneId,
-                kf.translation ? vec3.fromValues.apply(this, kf.translation) : null,
-                kf.rotation ? quat.fromValues.apply(this, kf.rotation) : null
-                )
+    var clips = {};
+    for(var k = 0; k < obj.animations.length; k++) {
+        var animObj = obj.animations[k];
+        var clip = new AnimationClip(animObj.id);
+        for (var i = 0; i < animObj.bones.length; i++) {
+            var bone = animObj.bones[i];
+            for (var j = 0; j < bone.keyframes.length; j++) {
+                var kf = bone.keyframes[j];
+                clip.addKeyFrame(
+                    Math.max(0, kf.keytime) / 1000,
+                    bone.boneId,
+                    kf.translation ? vec3.fromValues.apply(this, kf.translation) : null,
+                    kf.rotation ? quat.fromValues.apply(this, kf.rotation) : null
+                    )
+            };
         };
-    };
-    return anim;
+        clips[animObj.id] = clip;
+    }
+    return new Animation(clips);
 }

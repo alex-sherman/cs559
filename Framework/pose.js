@@ -7,6 +7,11 @@ Pose = Component.extend({
         this.scale = vec3.fromValues(1,1,1);
         this.rotation = quat.create();
     }),
+    face: function(direction) {
+        quat.identity(this.rotation);
+        quat.rotateY(this.rotation, this.rotation, Math.atan2(direction[0], direction[2]));
+        quat.rotateX(this.rotation, this.rotation, -Math.PI / 2);
+    },
     update: function(dt) {
         mat4.fromRotationTranslation(this.transform, this.rotation, this.position);
         mat4.scale(this.transform, this.transform, this.scale);
