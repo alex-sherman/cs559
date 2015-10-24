@@ -18,10 +18,11 @@ RenderManager = Class.extend({
     setTextures: function(textures) {
         var i = 0;
         for(var textureName in textures) {
-            gl.activeTexture(gl.TEXTURE0 + 0);
+            gl.activeTexture(gl.TEXTURE0 + i);
             gl.bindTexture(gl.TEXTURE_2D, textures[textureName]);
             var uniformLocation = gl.getUniformLocation(this.shader, textureName);
             gl.uniform1i(uniformLocation, i);
+            i++;
         }
     },
     setShader: function(shader) {
