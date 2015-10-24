@@ -12,6 +12,7 @@ Heightmap = Mesh.extend({
         this.loadTexture("texture1", "Textures/grass.png");
         this.loadTexture("texture2", "Textures/rock.png");
         this.loadTexture("texture3", "Textures/snow.jpg");
+        this.heights = null;
         image.onload = function() {
             //Use the image's width and height it wasn't sepicifed earlier
             self.width = self.width || this.width;
@@ -35,18 +36,27 @@ Heightmap = Mesh.extend({
         ctx.drawImage(image, 0, 0, image.width, image.height);
         var vertices = [];
         var heights = ctx.getImageData(0, 0, width, height).data
-        for(var y = 0; y < height; y++) {
-            for(var x = 0; x < width; x++) {
+        this.heights = [];
+        for(var x = 0; x < width; x++) {
+            this.heights.push([]);
+            for(var y = 0; y < height; y++) {
                 var heightValue = heights[4 * (x + y * width)] / 255;
+                this.heights[x].push(heightValue);
+            }
+        }
+            for(var y = 0; y < height; y++) {
+        for(var x = 0; x < width; x++) {
+                var heightValue = this.heights[x][y];
+                var normal = this.getNormal(x, y);
                 vertices.push.apply(vertices, [
-                    x, heightValue * this.yScale, y,
-                    0,1,0,
+                    x * this.xzScale, (heightValue - 0.5) * this.yScale, y * this.xzScale,
+                    normal[0], normal[1], normal[2],
                     x / 16, y / 16,
                     this.getBlendWeight(-1, 0.2, heightValue),
                     this.getBlendWeight(0.2, 0.6, heightValue),
                     this.getBlendWeight(0.6, 0.9, heightValue),
-                    this.getBlendWeight(0.9, 1, heightValue)
-                    ]);
+                    this.getBlendWeight(0.9, 2, heightValue)
+                ]);
             }
         }
         gl.bindBuffer(gl.ARRAY_BUFFER, output.buffer);
@@ -83,5 +93,49 @@ Heightmap = Mesh.extend({
         if (height > maxHeight)
             return Math.clamp((maxHeight + transferWidth - height) / transferWidth, 0, 1);
         return 1;
+    },
+    getNormal: function(x, y) {
+        if(!this.heights) return vec3.create();
+        var height = this.heights[x][y];
+        var diff = vec3.create();
+        var normal = vec3.create();
+        if (x > 0)
+        {
+            vec3.set(diff, -this.xzScale, -(height - this.heights[x - 1][y]) * this.yScale, 0);
+            vec3.add(normal, normal, vec3.cross(diff, diff, [0,0,1]));
+        }
+        if (x < this.width - 1)
+        {
+            vec3.set(diff, this.xzScale, -(height - this.heights[x + 1][y]) * this.yScale, 0);
+            vec3.add(normal, normal, vec3.cross(diff, [0,0,1], diff));
+        }
+        if (y > 0)
+        {
+            vec3.set(diff, 0, (height - this.heights[x][y - 1]) * this.yScale, this.xzScale);
+            vec3.add(normal, normal, vec3.cross(diff, diff, [1,0,0]));
+        }
+        if (y < this.height - 1)
+        {
+            vec3.set(diff, 0, -(height - this.heights[x][y + 1]) * this.yScale, this.xzScale);
+            vec3.add(normal, normal, vec3.cross(diff, diff, [1,0,0]));
+        }
+        vec3.normalize(normal, normal);
+        return normal;
+    },
+    surfaceAt: function(x, z) {
+        if(!this.heights) return 0;
+        var xW = (x - this.entity.Pose.position[0]) / this.xzScale
+        var zW = (z - this.entity.Pose.position[2]) / this.xzScale;
+        x = Math.floor(xW);
+        z = Math.floor(zW);
+        xW -= x;
+        zW -= z;
+        var height = 0;
+        height += this.heights[x][z] * (1 - xW) * (1 - zW);
+        height += this.heights[x + 1][z] * (xW) * (1 - zW);
+        height += this.heights[x][z + 1] * (1 - xW) * (zW);
+        height += this.heights[x + 1][z + 1] * (xW) * (zW);
+        return (height - 0.5) * this.yScale;
     }
+
 })
