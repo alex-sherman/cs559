@@ -54,7 +54,7 @@ Shaders = {
 var projection = mat4.create();
 var renderManager = new RenderManager(canvas, canvas.width, canvas.height);
 function resizeCallback() {
-    canvas.width = document.documentElement.clientWidth + 1;
+    canvas.width = document.documentElement.clientWidth;
     $("#containerDiv").width(canvas.width);
     canvas.height = document.documentElement.clientHeight;
     renderManager.width = canvas.width;
@@ -164,7 +164,7 @@ function loop(timestamp) {
     var delta = 0;
     if (prev_timestamp > 0) delta = (timestamp - prev_timestamp) / 1000;
     if(delta > 0)
-        averageFPS = averageFPS * 0.2 + 1 / delta;
+        averageFPS = averageFPS * 0.85 + (1 / delta * 0.15);
     $("#fps").text("FPS: " + averageFPS.toString().substr(0, 4));
 
     moveDir = vec3.create();
