@@ -34,6 +34,7 @@
     </div>
 
 <script type='text/javascript'>//<![CDATA[
+Math.clamp = function(v, min, max) { return Math.max(min, Math.min(max, v)); }
 var canvas = document.getElementById("canvas");
 var gl = canvas.getContext("experimental-webgl");
 
@@ -121,10 +122,10 @@ animation.play("Spinning");
 helicopter.Mesh.loadTexture("diffuse", "Models/Helicopter_Diffuse_Color.png");
 
 var terrain = new Entity();
-terrain.addComponent(new Heightmap("Models/Heightmap.png"));
+terrain.addComponent(new Heightmap("Models/Heightmap.png", 256, 256));
 terrain.addComponent(new Pose());
-terrain.Pose.position[0] = -5;
-terrain.Pose.position[2] = -5;
+terrain.Pose.position[0] = -128;
+terrain.Pose.position[2] = -128;
 
 var grass = new Entity();
 grass.addComponent(new Grass([

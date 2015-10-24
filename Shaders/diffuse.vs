@@ -8,11 +8,14 @@ uniform mat4 projectionMatrix;
 uniform mat4 worldMatrix;
 uniform float time;
 varying vec3 fNormal;
+varying vec3 fPosition;
 varying vec2 fTexCoord;
 
 void main()
 {
   fNormal = normalMatrix * NORMAL;
-  gl_Position =  projectionMatrix * worldMatrix * vec4(POSITION, 1);
+  fPosition = (worldMatrix * vec4(POSITION, 1)).xyz;
+  gl_Position =  projectionMatrix * vec4(fPosition, 1);
+
   fTexCoord = TEXCOORD0;
 }
