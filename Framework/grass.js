@@ -1,5 +1,6 @@
 Grass = Component.extend({
     init: (function Grass(positions) {
+        Component.init.apply(this);
         this.positions = positions;
         this.texture = null;
         this.shader = Shaders.grass;
@@ -37,7 +38,7 @@ $(document).ready(function() {
         ],
         buffer: gl.createBuffer()
     }
-    var A = 4 / 3;
+    var A = 4 / 3 / 2;
     var L = A / 2 / Math.sqrt(3);
     var O = L;
     var O2 = O / Math.sqrt(2);

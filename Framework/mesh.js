@@ -1,5 +1,6 @@
 Mesh = Component.extend({
     init: (function Mesh(meshParts, shader) {
+        Component.init.apply(this);
         this.parts = meshParts || {};
         this.textures = {};
         this.shader = shader || Shaders.diffuse;
@@ -35,9 +36,11 @@ Mesh = Component.extend({
         };
     },
     loadTexture: function(name, url) {
+        var deferred = $.Deferred();
+        this.deferreds.push(deferred);
         var image = new Image();
         var self = this;
-        image.onload = function() { self.textures[name] = renderManager.createTexture(image); }
+        image.onload = function() { self.textures[name] = renderManager.createTexture(image); deferred.resolve(); }
         image.src = url;
     }
 });
