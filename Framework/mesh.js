@@ -3,10 +3,10 @@ Mesh = Component.extend({
         Component.init.apply(this);
         this.parts = meshParts || {};
         this.textures = {};
-        this.shader = shader || Shaders.diffuse;
+        this.shader = shader || "diffuse";
     }),
     draw: function(renderManager) {
-        renderManager.setShader(this.shader);
+        renderManager.setShader(Shaders[this.shader]);
         if(this.entity.Pose) {
             renderManager.setUniform("worldMatrix", this.entity.Pose.transform);
             renderManager.setUniform("normalMatrix", this.entity.Pose.normalTransform);

@@ -1,7 +1,7 @@
 Heightmap = Mesh.extend({
     init: (function Heightmap(url, yScale, xzScale, width, height) {
         Mesh.init.apply(this);
-        this.shader = Shaders.multitexture;
+        this.shader = "multitexture";
         var image = new Image();
         var self = this;
         this.yScale = yScale || 1;
@@ -14,8 +14,8 @@ Heightmap = Mesh.extend({
         this.loadTexture("texture2", "Textures/rock.png");
         this.loadTexture("texture3", "Textures/snow.jpg");
         this.heights = null;
-        var deferred = $.Deferred();
-        this.deferreds.push(deferred);
+        this.loaded = $.Deferred();
+        this.deferreds.push(this.loaded);
         image.onload = function() {
             //Use the image's width and height it wasn't sepicifed earlier
             self.width = self.width || this.width;
@@ -24,7 +24,7 @@ Heightmap = Mesh.extend({
             var vertices = self.verticesFromImage(this, self.width, self.height);
             var indices = self.indicesFromBounds(self.width, self.height);
             self.parts["main"] = new MeshPart("main", vertices, indices.buffer, indices.length);
-            deferred.resolve();
+            self.loaded.resolve(self);
         }
         image.src = url;
     }),

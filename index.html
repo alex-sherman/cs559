@@ -31,7 +31,10 @@
         <div id ="fps">FPS: 0.0</div>
         <input type="range" id="lightValue" value="50"><br>
         Time of Day
-        <H1 id = "loading"> Loading... <H1>
+        <div id="loading">
+            <H1 class="shaders"> Loading Shaders... </H1>
+            <H1> Loading Textures... </H1>
+        </div>
     </div>
 
 <script type='text/javascript'>//<![CDATA[
@@ -45,12 +48,7 @@ gl.enable(gl.DEPTH_TEST);           // Enable depth testing
 gl.depthFunc(gl.LEQUAL);            // Near things obscure far things
 gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
-var Shaders = {
-    diffuse: CreateShader("Shaders/diffuse"),
-    skinned: CreateShader("Shaders/skinned"),
-    grass: CreateShader("Shaders/grass"),
-    multitexture: CreateShader("Shaders/multitexture")
-}
+
 
 var projection = mat4.create();
 var renderManager = new RenderManager(canvas, canvas.width, canvas.height);
@@ -69,6 +67,14 @@ $(window).resize(function() {
 })
 
 initMouseHandling($("#canvas"));
+
+var Shaders = {};
+var shaderLoad = [
+    CreateShader(Shaders, "diffuse", "Shaders/diffuse"),
+    CreateShader(Shaders, "skinned", "Shaders/skinned"),
+    CreateShader(Shaders, "grass", "Shaders/grass"),
+    CreateShader(Shaders, "multitexture", "Shaders/multitexture")
+];
 
 var waitFor = [];
 var dudeMesh = G3DJToMesh(Models.male);
@@ -107,7 +113,7 @@ function dudeBehavior(dt) {
 Dude = Entity.extend({
     init: (function Dude() {
         Entity.init.apply(this);
-        this.addComponent(new Mesh(dudeMesh, Shaders.skinned));
+        this.addComponent(new Mesh(dudeMesh, "skinned"));
         this.Mesh.loadTexture("diffuse",  "Models/Dude Suit.png");
         this.addComponent(new Pose());
         this.addComponent(G3DJToSkeleton(Models.male));
@@ -115,44 +121,54 @@ Dude = Entity.extend({
         this.addComponent(new Behavior({animation: "Default", pause: 2, target: vec3.create()}, dudeBehavior));
     }),
 })
+
+Helicopter = Entity.extend({
+    init: (function Helicopter() {
+        Entity.init.apply(this);
+        this.addComponent(new Pose());
+        quat.rotateX(this.Pose.rotation, this.Pose.rotation, -Math.PI / 2);
+        this.Pose.position[1] = 2;
+        this.addComponent(new Mesh(G3DJToMesh(Models.helicopter), "skinned"));
+        this.addComponent(G3DJToSkeleton(Models.helicopter));
+        animation = G3DJToAnimation(Models.helicopter);
+        this.addComponent(animation);
+        animation.play("Spinning");
+        this.Mesh.loadTexture("diffuse", "Models/Helicopter_Diffuse_Color.png");
+    })
+});
+
+Terrain = Entity.extend({
+    init: (function Terrain() {
+        Entity.init.apply(this);
+        this.addComponent(new Heightmap("Models/Heightmap.png", 30, 2, 256, 256));
+        this.addComponent(new Pose());
+        this.Pose.position[0] = -256;
+        this.Pose.position[2] = -256;
+        this.Heightmap.loaded.done(function(self) { self.entity.addGrass(); });
+    }),
+    addGrass: function() {
+        var grass = new Entity();
+        var grassPoints = [];
+        for(var i = 0; i < 100; i++) {
+            var grassPoint = vec3.fromValues(Math.random() * 10 - 5, 0, Math.random() * 10 -5);
+            grassPoint[1] = this.Heightmap.surfaceAt(grassPoint[0], grassPoint[2]);
+            grassPoints.push(grassPoint);
+        }
+        grass.addComponent(new Grass(grassPoints));
+        grass.addComponent(new Pose());
+        grass.Pose.scale[0] = 1;
+        grass.Pose.scale[1] = 1;
+        grass.Pose.scale[2] = 1;
+        grass.finalize();
+    }
+})
+
 for(var i = 0; i < 3; i++) {
     waitFor.push(new Dude().finalize());
 }
-
-var helicopter = new Entity();
-helicopter.addComponent(new Pose());
-quat.rotateX(helicopter.Pose.rotation, helicopter.Pose.rotation, -Math.PI / 2);
-helicopter.Pose.position[1] = 2;
-helicopter.addComponent(new Mesh(G3DJToMesh(Models.helicopter), Shaders.skinned));
-helicopter.addComponent(G3DJToSkeleton(Models.helicopter));
-animation = G3DJToAnimation(Models.helicopter);
-helicopter.addComponent(animation);
-animation.play("Spinning");
-helicopter.Mesh.loadTexture("diffuse", "Models/Helicopter_Diffuse_Color.png");
-waitFor.push(helicopter.finalize());
-
-function addGrass() {
-    var grass = new Entity();
-    var grassPoints = [];
-    for(var i = 0; i < 100; i++) {
-        var grassPoint = vec3.fromValues(Math.random() * 10 - 5, 0, Math.random() * 10 -5);
-        grassPoint[1] = this.Heightmap.surfaceAt(grassPoint[0], grassPoint[2]);
-        grassPoints.push(grassPoint);
-    }
-    grass.addComponent(new Grass(grassPoints));
-    grass.addComponent(new Pose());
-    grass.Pose.scale[0] = 1;
-    grass.Pose.scale[1] = 1;
-    grass.Pose.scale[2] = 1;
-    waitFor.push(grass.finalize());
-}
-
-var terrain = new Entity();
-terrain.addComponent(new Heightmap("Models/Heightmap.png", 30, 2, 256, 256));
-terrain.addComponent(new Pose());
-terrain.Pose.position[0] = -256;
-terrain.Pose.position[2] = -256;
-waitFor.push(terrain.finalize(addGrass));
+waitFor.push(new Helicopter().finalize());
+var terrain = new Terrain();
+waitFor.push(terrain.finalize());
 
 
 var prev_timestamp = 0;
@@ -231,6 +247,10 @@ function loop(timestamp) {
     updateInputState();
     window.requestAnimationFrame(loop);
 }
+$.when.apply(null, shaderLoad).then(function() {
+    var text = $("#loading .shaders").text();
+    $("#loading .shaders").text(text + " Done");
+})
 $.when.apply(null, waitFor).then(function() { $("#loading").hide(); loop(0); });
 //]]> 
 
