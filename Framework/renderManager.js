@@ -3,7 +3,6 @@ RenderManager = Class.extend({
         this.width = width;
         this.height = height;
         this.queue = [];
-        this.lightDir = null;
         this.viewProjection = mat4.create();
     }),
     createTexture: function(image) {
@@ -95,7 +94,6 @@ RenderManager = Class.extend({
     },
     beginDraw: function(time, lightDir, view, projection, cameraPos) {
         mat4.mul(this.viewProjection, projection, view);
-        this.lightDir = lightDir;
         for(var shaderName in Shaders) {
             this.setShader(Shaders[shaderName]);
             this.setUniforms({
@@ -106,5 +104,11 @@ RenderManager = Class.extend({
             });
         }
         this.shader = null;
+    },
+    setRenderTarget: function(renderTarget) {
+        if(renderTarget == null)
+            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        else
+            gl.bindFramebuffer(gl.FRAMEBUFFER, renderTarget.framebuffer);
     }
 });

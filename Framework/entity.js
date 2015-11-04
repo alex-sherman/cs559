@@ -1,6 +1,5 @@
 Component = Class.extend({
     init: (function Component() {
-        this.loaded = false;
         this.entity = null;
         this.deferreds = []
     }),
