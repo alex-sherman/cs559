@@ -4,6 +4,7 @@ RenderManager = Class.extend({
         this.height = height;
         this.queue = [];
         this.viewProjection = mat4.create();
+        this.renderTarget = null;
     }),
     createTexture: function(image) {
         texture = gl.createTexture();
@@ -19,8 +20,9 @@ RenderManager = Class.extend({
         for(var textureName in textures) {
             gl.activeTexture(gl.TEXTURE0 + i);
             gl.bindTexture(gl.TEXTURE_2D, textures[textureName]);
-            var uniformLocation = gl.getUniformLocation(this.shader, textureName);
+            var uniformLocation = gl.getUniformLocation(this.shader, textureName + "Texture");
             gl.uniform1i(uniformLocation, i);
+            this.setUniform(textureName + "TextureEnabled", true);
             i++;
         }
     },
@@ -61,6 +63,8 @@ RenderManager = Class.extend({
             else if(typeof value === "number") {
                 gl.uniform1f(uniformLocation, value);
             }
+            else if(typeof value === "boolean")
+                gl.uniform1i(uniformLocation, value)
         }
     },
     drawVertices: function(vertices, indices, count) {
@@ -92,23 +96,30 @@ RenderManager = Class.extend({
             }
         }
     },
-    beginDraw: function(time, lightDir, view, projection, cameraPos) {
+    beginDraw: function(view, projection, cameraPos, uniforms) {
         mat4.mul(this.viewProjection, projection, view);
         for(var shaderName in Shaders) {
             this.setShader(Shaders[shaderName]);
             this.setUniforms({
-                time: time,
-                projectionMatrix: this.viewProjection,
-                lightDir: lightDir,
-                cameraPosition: cameraPos
+                viewProjection: this.viewProjection,
+                cameraPosition: cameraPos,
+                projection: projection
             });
+            if(uniforms)
+                this.setUniforms(uniforms);
         }
         this.shader = null;
     },
     setRenderTarget: function(renderTarget) {
-        if(renderTarget == null)
+        this.renderTarget = renderTarget;
+        if(renderTarget == null) {
+            gl.viewport(0, 0, this.width, this.height);
             gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-        else
+        }
+        else {
+            gl.viewport(0, 0, renderTarget.width, renderTarget.height);
             gl.bindFramebuffer(gl.FRAMEBUFFER, renderTarget.framebuffer);
+        }
+        gl.clear(gl.DEPTH_BUFFER_BIT);
     }
 });

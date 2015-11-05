@@ -4,7 +4,7 @@ attribute vec3 NORMAL;
 attribute vec2 TEXCOORD0;
 uniform mat3 normalMatrix;
 uniform mat4 viewMatrix;
-uniform mat4 projectionMatrix;
+uniform mat4 viewProjection;
 uniform mat4 worldMatrix;
 uniform float time;
 varying vec3 fNormal;
@@ -15,6 +15,6 @@ void main()
 {
   fNormal = normalMatrix * NORMAL;
   fPosition = (worldMatrix * vec4(POSITION, 1)).xyz;
-  gl_Position =  projectionMatrix * vec4(fPosition, 1);
+  gl_Position =  viewProjection * vec4(fPosition, 1);
   fTexCoord = TEXCOORD0;
 }

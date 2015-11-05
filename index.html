@@ -75,7 +75,8 @@ var shaderLoad = [
     CreateShader(Shaders, "diffuse", "Shaders/diffuse"),
     CreateShader(Shaders, "skinned", "Shaders/skinned"),
     CreateShader(Shaders, "grass", "Shaders/grass"),
-    CreateShader(Shaders, "multitexture", "Shaders/multitexture")
+    CreateShader(Shaders, "multitexture", "Shaders/multitexture"),
+    CreateShader(Shaders, "water", "Shaders/water")
 ];
 
 var waitFor = [];
@@ -143,6 +144,7 @@ Terrain = Entity.extend({
     init: (function Terrain() {
         Entity.init.apply(this);
         this.addComponent(new Heightmap("Models/Heightmap.png", 30, 2, 256, 256));
+        this.addComponent(new Water(512, 512));
         this.addComponent(new Pose());
         this.Pose.position[0] = -256;
         this.Pose.position[2] = -256;
@@ -198,16 +200,15 @@ function loop(timestamp) {
         averageFPS = averageFPS * 0.85 + (1 / delta * 0.15);
     $("#fps").text("FPS: " + averageFPS.toString().substr(0, 4));
 
-
-
     //Light direction
     quat.identity(lightAngle);
 
     quat.rotateZ(lightAngle, lightAngle, Number($("#lightValue").val()) / 50 * Math.PI);
     vec3.transformQuat(lightDir, forward, lightAngle);
-
     Entity.entities.map(function(entity) { entity.update(delta); });
-    renderManager.beginDraw(timestamp / 1000.0, lightDir, observer.Camera.view, projection, observer.Camera.position);
+    Water.drawToTargets(Entity.entities, renderManager, observer.Camera);
+    renderManager.setRenderTarget(null);
+    renderManager.beginDraw(observer.Camera.view, projection, observer.Camera.position, {time: timestamp / 1000.0, lightDir: lightDir});
     Entity.entities.map(function(entity) { entity.draw(renderManager); });
     prev_timestamp = timestamp;
     updateInputState();

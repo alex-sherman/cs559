@@ -3,6 +3,7 @@ Mesh = Component.extend({
         Component.init.apply(this);
         this.parts = meshParts || {};
         this.textures = {};
+        this.uniforms = {};
         this.shader = shader || "diffuse";
     }),
     draw: function(renderManager) {
@@ -16,6 +17,7 @@ Mesh = Component.extend({
             renderManager.setUniform("normalMatrix", mat3.create());
         }
         renderManager.setTextures(this.textures);
+        renderManager.setUniforms(this.uniforms);
         for (meshPartId in this.parts) {
             var meshPart = this.parts[meshPartId];
             renderManager.setUniforms(meshPart.material);

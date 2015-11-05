@@ -19,7 +19,7 @@ uniform mat4 boneTransforms[64];
 uniform mat3 boneTransformsN[64];
 uniform mat3 normalMatrix;
 uniform mat4 viewMatrix;
-uniform mat4 projectionMatrix;
+uniform mat4 viewProjection;
 uniform mat4 worldMatrix;
 uniform float time;
 varying vec3 fNormal;
@@ -59,6 +59,6 @@ void main()
   normalTransform += (boneTransformsN[int(BLENDWEIGHT12.x)] * BLENDWEIGHT12.y);
   fNormal = normalMatrix * normalTransform * NORMAL;
   worldPos = (worldMatrix * boneTransform * vec4(POSITION, 1.0)).xyz;
-  gl_Position =  projectionMatrix * vec4(worldPos, 1.0);
+  gl_Position =  viewProjection * vec4(worldPos, 1.0);
   fTexCoord = TEXCOORD0;
 }
