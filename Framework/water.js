@@ -26,7 +26,8 @@ Water = Mesh.extend({
                 Water.indices,
                 6
             );
-            self.textures.diffuse = Water.reflectionTarget.texture;
+            self.textures.reflection = Water.reflectionTarget.texture;
+            self.textures.refraction = Water.refractionTarget.texture;
         });
         this.deferreds.push(Water.loaded);
     }),
@@ -43,12 +44,25 @@ Water.camera = null;
 Water.drawToTargets = function(entities, renderManager, camera) {
     Water.camera = camera;
     renderManager.setRenderTarget(Water.reflectionTarget);
-    renderManager.beginDraw(camera.reflectionView, Water.projection, observer.Camera.position);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    renderManager.beginDraw(camera.reflectionView, Water.projection, observer.Camera.position,
+        {
+            clipPlane: vec4.fromValues(0, 1, 0, -Water.height)
+        });
+    Entity.entities.map(function(entity) { entity.draw(renderManager); });
+
+    renderManager.setRenderTarget(Water.refractionTarget);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    renderManager.beginDraw(camera.view, Water.projection, observer.Camera.position,
+        {
+            clipPlane: vec4.fromValues(0, -1, 0, Water.height)
+        });
     Entity.entities.map(function(entity) { entity.draw(renderManager); });
 }
 Water.loaded = $.Deferred();
 $(document).ready(function() {
-    Water.reflectionTarget = new RenderTarget(1024, 1024);
+    Water.reflectionTarget = new RenderTarget(512, 512);
+    Water.refractionTarget = new RenderTarget(512, 512);
     Water.indices = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, Water.indices);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,

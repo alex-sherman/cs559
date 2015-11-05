@@ -49,8 +49,14 @@ RenderManager = Class.extend({
                     case 1:
                         gl.uniform1fv(uniformLocation, value);
                         break;
+                    case 2:
+                        gl.uniform2fv(uniformLocation, value);
+                        break;
                     case 3:
                         gl.uniform3fv(uniformLocation, value);
+                        break;
+                    case 4:
+                        gl.uniform4fv(uniformLocation, value);
                         break;
                     case 9:
                         gl.uniformMatrix3fv(uniformLocation, false,  value);
@@ -113,12 +119,12 @@ RenderManager = Class.extend({
     setRenderTarget: function(renderTarget) {
         this.renderTarget = renderTarget;
         if(renderTarget == null) {
-            gl.viewport(0, 0, this.width, this.height);
             gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+            gl.viewport(0, 0, this.width, this.height);
         }
         else {
-            gl.viewport(0, 0, renderTarget.width, renderTarget.height);
             gl.bindFramebuffer(gl.FRAMEBUFFER, renderTarget.framebuffer);
+            gl.viewport(0, 0, renderTarget.width, renderTarget.height);
         }
         gl.clear(gl.DEPTH_BUFFER_BIT);
     }

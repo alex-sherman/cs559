@@ -4,6 +4,7 @@ varying vec2 fTexCoord;
 varying vec3 fPosition;
 uniform vec3 lightDir;
 varying vec4 fBlendWeight;
+varying float clipDistance;
 
 uniform sampler2D texture0Texture;
 uniform sampler2D texture1Texture;
@@ -12,6 +13,9 @@ uniform sampler2D texture3Texture;
 
 void main()
 {
+  if(clipDistance < 0.)
+    discard;
+
   float base = 0.4;
   gl_FragColor = vec4(
     ((texture2D(texture0Texture, vec2(fTexCoord.x, fTexCoord.y)) * fBlendWeight[0]) +

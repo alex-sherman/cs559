@@ -208,7 +208,13 @@ function loop(timestamp) {
     Entity.entities.map(function(entity) { entity.update(delta); });
     Water.drawToTargets(Entity.entities, renderManager, observer.Camera);
     renderManager.setRenderTarget(null);
-    renderManager.beginDraw(observer.Camera.view, projection, observer.Camera.position, {time: timestamp / 1000.0, lightDir: lightDir});
+    renderManager.beginDraw(observer.Camera.view, projection, observer.Camera.position,
+        {
+            time: timestamp / 1000.0,
+            lightDir: lightDir,
+            clipPlane: vec4.fromValues(0, 0, 0, 0)
+        }
+    );
     Entity.entities.map(function(entity) { entity.draw(renderManager); });
     prev_timestamp = timestamp;
     updateInputState();
