@@ -12,13 +12,14 @@ uniform mat4 worldMatrix;
 uniform float time;
 varying vec3 fNormal;
 varying vec3 fPosition;
-varying vec3 fTexCoord;
+varying vec3 fReflCoord;
+varying vec3 fRefrCoord;
 
 void main()
 {
   fNormal = normalMatrix * NORMAL;
   fPosition = (worldMatrix * vec4(POSITION, 1)).xyz;
   gl_Position =  viewProjection * vec4(fPosition, 1);
-  vec4 refWorldPos = (reflectionProj * reflectionView * worldMatrix * vec4(POSITION, 1));
-  fTexCoord = refWorldPos.xyw;
+  fReflCoord = (reflectionProj * reflectionView * worldMatrix * vec4(POSITION, 1)).xyw;
+  fRefrCoord = gl_Position.xyw;
 }

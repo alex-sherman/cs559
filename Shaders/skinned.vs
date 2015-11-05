@@ -24,7 +24,9 @@ uniform mat4 worldMatrix;
 uniform float time;
 varying vec3 fNormal;
 varying vec2 fTexCoord;
-varying vec3 worldPos;
+varying vec3 fPosition;
+uniform vec4 clipPlane;
+varying float clipDistance;
 
 void main()
 {
@@ -58,7 +60,8 @@ void main()
   normalTransform += (boneTransformsN[int(BLENDWEIGHT11.x)] * BLENDWEIGHT11.y);
   normalTransform += (boneTransformsN[int(BLENDWEIGHT12.x)] * BLENDWEIGHT12.y);
   fNormal = normalMatrix * normalTransform * NORMAL;
-  worldPos = (worldMatrix * boneTransform * vec4(POSITION, 1.0)).xyz;
-  gl_Position =  viewProjection * vec4(worldPos, 1.0);
+  fPosition = (worldMatrix * boneTransform * vec4(POSITION, 1.0)).xyz;
+  clipDistance = dot(vec4(fPosition, 1.0), clipPlane);
+  gl_Position =  viewProjection * vec4(fPosition, 1.0);
   fTexCoord = TEXCOORD0;
 }

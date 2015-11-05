@@ -55,7 +55,7 @@ Water.drawToTargets = function(entities, renderManager, camera) {
     gl.clear(gl.COLOR_BUFFER_BIT);
     renderManager.beginDraw(camera.view, Water.projection, observer.Camera.position,
         {
-            clipPlane: vec4.fromValues(0, -1, 0, Water.height)
+            clipPlane: vec4.fromValues(0, 0, 0, 0)
         });
     Entity.entities.map(function(entity) { entity.draw(renderManager); });
 }

@@ -4,10 +4,12 @@ varying vec2 fTexCoord;
 uniform vec3 lightDir;
 uniform sampler2D diffuseTexture;
 uniform vec3 cameraPosition;
-varying vec3 worldPos;
+varying float clipDistance;
 
 void main()
 {
+  if(clipDistance < 0.)
+    discard;
   vec4 color = texture2D(diffuseTexture, vec2(fTexCoord.x, fTexCoord.y));
   if(color.a < 0.9)
     discard;
