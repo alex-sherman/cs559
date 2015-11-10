@@ -39,7 +39,7 @@ Water = Mesh.extend({
         }
     }
 });
-Water.height = -8;
+Water.height = -32;
 Water.camera = null;
 Water.drawToTargets = function(entities, renderManager, camera) {
     Water.camera = camera;

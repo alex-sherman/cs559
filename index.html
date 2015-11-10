@@ -143,17 +143,17 @@ Helicopter = Entity.extend({
 Terrain = Entity.extend({
     init: (function Terrain() {
         Entity.init.apply(this);
-        this.addComponent(new Heightmap("Models/Heightmap.png", 30, 2, 256, 256));
-        this.addComponent(new Water(512, 512));
+        this.addComponent(new Heightmap("Models/Heightmap.png", 120, 8, 256, 256));
+        this.addComponent(new Water(2048, 2048));
         this.addComponent(new Pose());
-        this.Pose.position[0] = -256;
-        this.Pose.position[2] = -256;
+        this.Pose.position[0] = -1024;
+        this.Pose.position[2] = -1024;
         this.Heightmap.loaded.done(function(self) { self.entity.addGrass(); });
     }),
     addGrass: function() {
         var grass = new Entity();
         var grassPoints = [];
-        for(var i = 0; i < 100; i++) {
+        for(var i = 0; i < 20; i++) {
             var grassPoint = vec3.fromValues(Math.random() * 10 - 5, 0, Math.random() * 10 -5);
             grassPoint[1] = this.Heightmap.surfaceAt(grassPoint[0], grassPoint[2]);
             grassPoints.push(grassPoint);

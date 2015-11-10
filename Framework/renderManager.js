@@ -42,7 +42,7 @@ RenderManager = Class.extend({
             }
         }
         else {
-            var uniformLocation = gl.getUniformLocation(this.shader, name);
+            var uniformLocation = this.shader.uniforms[name] || -1;
             if(uniformLocation == -1) return;
             if(value.constructor === Float32Array) {
                 switch(value.length) {
