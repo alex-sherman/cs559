@@ -19,6 +19,8 @@ Water = Mesh.extend({
             0,Water.height,height, 0,1, 0,1,0,
             width,Water.height,height, 1,1, 0,1,0
         ]), gl.STATIC_DRAW);
+        self.loadTexture("bumpMap", "Textures/waterbump.jpg");
+        self.uniforms["bumpResolution"] = 20;
         Water.loaded.done(function() {
             self.parts["surface"] = new MeshPart(
                 "surface",
