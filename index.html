@@ -27,14 +27,27 @@
     <script src="Models/male.g3dj"></script>
     <script src="Models/helicopter.g3dj"></script>
     <script src="Models/anim.g3dj"></script>
+    <link rel="stylesheet" type="text/css" href="style.css">
   
 </head>
 <body style="margin:0">
     <canvas id="canvas" style="position:absolute;"></canvas>
     <div id="containerDiv" align="center" style="position:absolute">
-        <div id ="fps">FPS: 0.0</div>
-        <input type="range" id="lightValue" value="50"><br>
-        Time of Day
+        <div class="clearfix row" style="margin-left:auto;">
+            <div class="col" id ="fps">FPS: 0.0</div>
+            <div class="col">
+                <input type="range" id="lightValue" value="50"><br>
+                Time of Day
+            </div>
+            <div class="col">
+                <input type="range" id="windiness" value="50"><br>
+                Windiness
+            </div>
+            <div class="col">
+                <input type="checkbox" id="terrainLod" checked><br>
+                Terrain Texture LOD
+            </div>
+        </div>
         <div id="loading">
             <H1 class="shaders"> Loading Shaders... </H1>
             <H1> Loading Textures... </H1>
@@ -148,10 +161,13 @@ Terrain = Entity.extend({
         this.addComponent(new Pose());
         this.Pose.position[0] = -1024;
         this.Pose.position[2] = -1024;
-        this.Heightmap.loaded.done(function(self) { self.entity.addGrass(); });
+        var def = $.Deferred();
+        this.Heightmap.deferreds.push(def);
+        this.Heightmap.loaded.done(function(self) { self.entity.addGrass(def); });
     }),
-    addGrass: function() {
+    addGrass: function(def) {
         var grass = new Entity();
+        this.Grass = grass;
         var grassPoints = [];
         for(var i = 0; i < 20; i++) {
             var grassPoint = vec3.fromValues(Math.random() * 10 - 5, 0, Math.random() * 10 -5);
@@ -163,7 +179,7 @@ Terrain = Entity.extend({
         grass.Pose.scale[0] = 1;
         grass.Pose.scale[1] = 1;
         grass.Pose.scale[2] = 1;
-        grass.finalize();
+        grass.finalize().done(function() { def.resolve(); });
     }
 })
 
@@ -200,6 +216,9 @@ function loop(timestamp) {
         averageFPS = averageFPS * 0.85 + (1 / delta * 0.15);
     $("#fps").text("FPS: " + averageFPS.toString().substr(0, 4));
 
+    terrain.Heightmap.uniforms.enableLod = $("#terrainLod").prop("checked");
+    terrain.Water.uniforms.windiness = $("#windiness").val() / 100;
+    terrain.Grass.Grass.uniforms.windiness = $("#windiness").val() / 100;
     //Light direction
     quat.identity(lightAngle);
 

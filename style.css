@@ -1,0 +1,15 @@
+.col {
+    float:left;
+    border: 1px;
+    border-style: solid;
+    height: 45px;
+}
+.clearfix:after { 
+   content: " ";
+   display: block; 
+   height: 0; 
+   clear: both;
+}
+input {
+    height: 21px;
+}

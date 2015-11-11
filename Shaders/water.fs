@@ -9,6 +9,7 @@ uniform sampler2D reflectionTexture;
 uniform sampler2D refractionTexture;
 uniform sampler2D bumpMapTexture;
 uniform float time;
+uniform float windiness;
 
 void main()
 {
@@ -16,8 +17,8 @@ void main()
     gl_FragColor = vec4(1,0,1,1);
     vec2 perturb = texture2D(bumpMapTexture, fTexCoord + time / 100.0).rg;
     perturb = perturb - 0.5;
-    vec2 reflCoord = (fReflCoord / fReflCoord.z / 2.0 + 0.5).xy + perturb * 0.05;
-    vec2 refrCoord = (fRefrCoord / fRefrCoord.z / 2.0 + 0.5).xy + perturb * 0.05;
+    vec2 reflCoord = (fReflCoord / fReflCoord.z / 2.0 + 0.5).xy + perturb * 0.05 * windiness;
+    vec2 refrCoord = (fRefrCoord / fRefrCoord.z / 2.0 + 0.5).xy + perturb * 0.05 * windiness;
     perturb = perturb * 2.;
     gl_FragColor.a = 1.0;
     gl_FragColor.xyz = vec3(0);

@@ -3,6 +3,7 @@ attribute vec3 POSITION;
 attribute vec3 NORMAL;
 attribute vec2 TEXCOORD0;
 attribute vec4 BLENDWEIGHT0;
+uniform vec3 cameraPosition;
 uniform mat3 normalMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 viewProjection;
@@ -14,6 +15,8 @@ varying vec2 fTexCoord;
 varying vec4 fBlendWeight;
 uniform vec4 clipPlane;
 varying float clipDistance;
+uniform bool enableLod;
+varying float fLodW;
 
 void main()
 {
@@ -23,4 +26,5 @@ void main()
   gl_Position =  viewProjection * vec4(fPosition, 1);
   fBlendWeight = BLENDWEIGHT0;
   fTexCoord = TEXCOORD0;
+  fLodW = enableLod ? clamp((length(fPosition - cameraPosition) - 100.) / 100., 0., 1.) : 0.;
 }

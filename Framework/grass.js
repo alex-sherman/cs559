@@ -4,11 +4,13 @@ Grass = Component.extend({
         this.positions = positions;
         this.texture = null;
         this.shader = "grass";
+        this.uniforms = {};
     }),
     draw: function(renderManager) {
         gl.enable(gl.BLEND);
         if(!Grass.vertices) return;
         renderManager.setShader(Shaders[this.shader]);
+        renderManager.setUniforms(this.uniforms);
         if(this.entity.Pose) {
             renderManager.setUniform("worldMatrix", this.entity.Pose.transform);
             renderManager.setUniform("normalMatrix", this.entity.Pose.normalTransform);

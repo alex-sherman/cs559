@@ -13,6 +13,7 @@ Heightmap = Mesh.extend({
         this.loadTexture("texture1", "Textures/grass.png");
         this.loadTexture("texture2", "Textures/rock.png");
         this.loadTexture("texture3", "Textures/snow.jpg");
+        this.uniforms["enableLod"] = false;
         this.heights = null;
         this.loaded = $.Deferred();
         this.deferreds.push(this.loaded);
@@ -55,7 +56,7 @@ Heightmap = Mesh.extend({
                 vertices.push.apply(vertices, [
                     x * this.xzScale, (heightValue - 0.5) * this.yScale, y * this.xzScale,
                     normal[0], normal[1], normal[2],
-                    x / 16, y / 16,
+                    x / 4, y / 4,
                     this.getBlendWeight(-1, 0.2, heightValue),
                     this.getBlendWeight(0.2, 0.6, heightValue),
                     this.getBlendWeight(0.6, 0.9, heightValue),
