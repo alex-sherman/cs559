@@ -1,7 +1,7 @@
 Camera = Component.extend({
     init: (function Camera(){
         this.base.init.apply(this);
-        this.offset = 10;
+        this.offset = 20;
         this.view = mat4.create();
         this.reflectionView = mat4.create();
         this.position = vec3.create();

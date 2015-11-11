@@ -150,6 +150,9 @@ Helicopter = Entity.extend({
         this.addComponent(animation);
         animation.play("Spinning");
         this.Mesh.loadTexture("diffuse", "Models/Helicopter_Diffuse_Color.png");
+        this.addComponent(new Behavior({}, function() {
+            this.Pose.position[1] = terrain.Heightmap.surfaceAt(this.Pose.position[0], this.Pose.position[2]) + 10;
+        }));
     })
 });
 
@@ -193,18 +196,12 @@ var observer = new Observer(terrain);
 waitFor.push(observer.finalize());
 
 var prev_timestamp = 0;
-var cameraPosition = vec3.create();
-var cameraLookAt = vec3.create();
-var cameraR = 10;
 var theta = Math.PI / 4;
 var phi = -Math.PI / 8;
 var moveSpeed = 5;
 var moveDir = vec3.create();
 var mouseSensitivity = 1 / 300;
 
-var cameraRotation = mat4.create();
-var view = mat4.create();
-var cameraUp = vec3.create();
 var forward = vec3.fromValues(0, 1, 0);
 var lightAngle = quat.create();
 var lightDir = vec3.create();
